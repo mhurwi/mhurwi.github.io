@@ -1,0 +1,544 @@
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Test-Driven Meteor: A Very Basic Tutorial</title>
+    <meta name="description" content="">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="http://localhost:2368/assets/favicon.png?v=d90acbffcb">
+
+    <!--[if lt IE 9]>
+    <script src="http://s3.amazonaws.com/nwapi/nwmatcher/nwmatcher-1.2.5-min.js"></script>
+    <script type="text/javascript" src="/assets/js/html5shiv.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="/assets/js/css3-mediaqueries.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="/assets/js/selectivizr-min.js?v=d90acbffcb"></script>
+    <![endif]-->
+
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700%7CRoboto+Condensed%7CPoly:400,400italic" rel="stylesheet" type="text/css">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/css/normalize.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/ghostship.min.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prettify/sunburst.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/style.css?v=d90acbffcb">
+
+    <link rel="canonical" href="index.html">
+    
+    <meta property="og:site_name" content="Mhurwi">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Test-Driven Meteor: A Very Basic Tutorial">
+    <meta property="og:description" content='Welcome to your first day at the Meteor Widget factory!  Today we will get started building our widget app.  Specs include clicking a button and seeing "New Widget!" appear on the screen.  Most importantly, we will develop this feature test-first....'>
+    <meta property="og:url" content="http://localhost:2368/test-driven-meteor-very-basic-tutorial/">
+    <meta property="article:published_time" content="2015-05-20T12:45:00.000Z">
+    <meta property="article:modified_time" content="2015-10-24T14:43:29.378Z">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Test-Driven Meteor: A Very Basic Tutorial">
+    <meta name="twitter:description" content='Welcome to your first day at the Meteor Widget factory!  Today we will get started building our widget app.  Specs include clicking a button and seeing "New Widget!" appear on the screen.  Most importantly, we will develop this feature test-first....'>
+    <meta name="twitter:url" content="http://localhost:2368/test-driven-meteor-very-basic-tutorial/">
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Mhurwi",
+    "author": {
+        "@type": "Person",
+        "name": "Mark Hurwitz",
+        "image": "//www.gravatar.com/avatar/9d7ef290cb87ca79dd8ea7879c465dfb?s=250&d=mm&r=x",
+        "url": "http://localhost:2368/author/mark",
+        "sameAs": null,
+        "description": null
+    },
+    "headline": "Test-Driven Meteor: A Very Basic Tutorial",
+    "url": "http://localhost:2368/test-driven-meteor-very-basic-tutorial/",
+    "datePublished": "2015-05-20T12:45:00.000Z",
+    "dateModified": "2015-10-24T14:43:29.378Z",
+    "description": "Welcome to your first day at the Meteor Widget factory!  Today we will get started building our widget app.  Specs include clicking a button and seeing &quot;New Widget!&quot; appear on the screen.  Most importantly, we will develop this feature test-first...."
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.6">
+    <link rel="alternate" type="application/rss+xml" title="Mhurwi" href="../rss/index.html">
+    <script type="text/javascript">
+  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","group","track","ready","alias","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t){var e=document.createElement("script");e.type="text/javascript";e.async=!0;e.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};analytics.SNIPPET_VERSION="3.0.1";
+  analytics.load("lkntcnlzpd");
+  analytics.page()
+  }}();
+</script>
+</head>
+<body class="post-template">
+
+    <div id="blog_cover_willsong" class="bkg-cover"></div>
+
+    
+
+<header id="head_page_willsong">
+
+    <div id="head_content_willsong" class="boxed-cargo">
+
+        <h1 id="blog_title"><a href="../">Mhurwi</a></h1>
+
+        
+<nav id="menu_willsong">
+	<ul>
+		<li><a href="../about">About</a></li>
+		<li><a href="../projects">Projects</a></li>
+		<li><a href="../contact">Contact</a></li>
+	</ul>
+</nav>
+    </div>
+
+</header>
+<main id="content_willsong" role="main">
+
+    <div id="content_column_willsong" class="boxed-cargo">
+
+
+        <article class="post featured col-off2lg8-off2md8-off1sm10">
+
+            <header class="reading_post_header">
+                <h2 class="post_title">Test-Driven Meteor: A Very Basic Tutorial</h2>
+                <div class="post_meta">
+                    <span class="fa fa-clock-o"></span> <time datetime="2015-05-20">20 May 2015</time>
+                </div>
+            </header>
+
+            <p>Welcome to your first day at the Meteor Widget factory!  Today we will get started building our widget app.  Specs include clicking a button and seeing "New Widget!" appear on the screen.  Most importantly, we will develop this feature <strong>test-first</strong>.</p>
+
+<p>We will use just a few tools: Meteor, Velocity &amp; Jasmine.</p>
+
+<p><a href="https://github.com/mhurwi/meteor-tdd-tutorial">See the code at Github</a></p>
+
+<p>Let's start by exploring the Velocity test framework with a simple button-clicking test.</p>
+
+<h1 id="createanewapp">Create a new app</h1>
+
+<p>Let's create our app and change into the new directory:</p>
+
+<pre><code class="language-bash">meteor create widget_maker  
+cd widget_maker  
+</code></pre>
+
+<p>We are going to keep this app as simple as possible.  We will wait to add features like routing and user logins.  But we will add 2 packages, one for style and one for testing.</p>
+
+<p>First package: bootstrap css.  So we can prototype with some style.</p>
+
+<pre><code class="language-bash">meteor add twbs:bootstrap  
+</code></pre>
+
+<p>Next, we will add the testing package</p>
+
+<h1 id="aboutvelocity">About Velocity</h1>
+
+<p>There is much you will want to know about Velocity, in addition to how it works. It is <em>not</em> developed by the Meteor Development Group and it is <em>not</em> the <em>only</em> test framework available. But it is the most popular and, like most open source packages, community members are building it, for free, in their own time. Learn more at their github repo: (<a href="https://github.com/meteor-velocity/velocity">https://github.com/meteor-velocity/velocity</a>)</p>
+
+<p>*Note: * As of this writing, the current release of Velocity is 0.6.3.</p>
+
+<p>One key point: Velocity <em>runs</em> your tests, but it is <em>not</em> itself the tests.  It runs Meteor on a separate server, executes fancy things like mirroring in the background, and allows your tests to run against a real, live Meteor application, that is separate from the instance that you typically interact with.</p>
+
+<h1 id="addjasmine">Add Jasmine</h1>
+
+<p>You will write tests using your chosen JavaScript testing framework. For this tutorial, we will use Jasmine.</p>
+
+<p>Other options include Mocha, Jasmine and Cucumber.  Perhaps someday we will hash out the differences, weigh the pros and cons, and make a more deliberate choice. But, most people agree: Jasmine works great when you know how to use it.</p>
+
+<p>Let's learn how to use it.  Start by adding the package:</p>
+
+<pre><code class="language-bash">meteor add sanjo:jasmine  
+</code></pre>
+
+<p>This packages adds Velocity, among other dependencies, but it does <em>not</em> add the 'test reporter', the thing that actually displays test results on the screen.  So we add another package:</p>
+
+<pre><code class="language-bash">meteor add velocity:html-reporter  
+</code></pre>
+
+<p>Maybe someday you will want to choose a different reporter; there are several. We might want to keep our tests confined to our terminal using the <a href="https://github.com/meteor-velocity/console-reporter/">console-reporter</a>.  But people commonly start with the HTML reporter.  We can see it working when we start our app:</p>
+
+<pre><code class="language-bash">meteor  
+</code></pre>
+
+<p>Open your browser and go to (<a href="http://localhost:3000">http://localhost:3000</a>).  You should see this:</p>
+
+<p><img src="https://draftin.com:443/images/29203?token=DFE912ksy9ceqDjWoeAsIXmPQWcWPT17MpC0e6B90Q2YaJGm8mP-WSyqLKfIW47hOa8BdCJiZZ2BTRQtGlrp4XY" alt="Velocity on first run" title=""> </p>
+
+<h1 id="addsampletests">Add sample tests</h1>
+
+<p>0 tests passed because we have written 0 tests.  But Velocity offers us a unique feature: It will add sample tests for us.  Click the button 'add jasmine-client-integration tests'.  Wait a few moments.  Velocity will create some new files:</p>
+
+<p><img src="https://draftin.com:443/images/29204?token=4BjXziOqwx6V8BR4E7OyIvpzAAP-gWArRWYk5lNWpmSOabXAy_4wR1D54i7kyiYD1H1m0TiQ-fbxARO0Gf5kA5Y" alt="jasmine&lt;em&gt;sample&lt;/em&gt;tests.png" title=""> </p>
+
+<h1 id="addourowntest">Add our own test</h1>
+
+<p>Let's wipe out those samples and write our <em>own</em> test.  When we ran 'meteor create', it gave us a tiny little app for free, with a button.  Let's test that button.</p>
+
+<p>Delete the file <code>tests/jasmine/client/integration/sample/spec/PlayerSpec.js</code></p>
+
+<p>Make a new file: <code>tests/jasmine/client/integration/sample/spec/buttonSpec.js</code></p>
+
+<p>And start with this code:</p>
+
+<pre><code class="language-javascript">describe('clicking the button', function () {  
+  // reset the counter before each test
+  beforeEach(function() {
+    Session.set('counter', 0);
+  });
+
+  it('should show how many times the button was pressed', function () {
+    // Get the text we are testing
+    var text = $('p#buttonText').text();
+
+    // click the button
+    $('button').click();
+
+    // assert that we see 'You've pressed the button times.'
+    expect(text).toEqual("You've pressed the button 1 times.");
+  });
+});
+
+// tests/jasmine/client/integration/sample/spec/buttonSpec.js
+</code></pre>
+
+<p>And you should see the results after you save:</p>
+
+<p><img src="https://draftin.com:443/images/29205?token=KMQR66TpfXlptd8551TZJsmNA2ZI6lOHa0P0am8p8lgs297MrNLDx9bnlE7X33IKkhGG4vyRR45VhwwBW1_Un50" alt="first&lt;em&gt;passing&lt;/em&gt;test.png" title=""> </p>
+
+<p>In our browser, we see that our app is running on <code>localhost:3000</code>, and the text still says "You've pressed the button 0 times."  That's a <em>good thing</em>.</p>
+
+<p>Velocity runs our test app separately from our development app. We do not want our test app to interfere with our development app.  In fact, we want our test app to run in a completely separate <strong>test</strong> environment.  This becomes especially important when we start making collections and saving data to the database.  In the test environment, we will create &amp; delete documents willy-nilly, again and again. We do <em>not</em> want to touch our development database <em>at all</em>.</p>
+
+<h1 id="whatwevedone">What we've done</h1>
+
+<p>In this first step, we created a new app, added Velocity and Jasmine, and created a simple test. We ran the sample 'button-clicking' app that Meteor gave us, and tested that clicking the button shows the correct text.  </p>
+
+<p>Next, let's delete all this code and get started on our <em>real</em> app.</p>
+
+<h1 id="testfirstfeature">Test first feature</h1>
+
+<p>This app is all about making widgets.  We will put off discussing the nature and value of widgets. We won't even persist our widget to the database until the next lesson. For now, we know of one feature: When we click a button, we want to see a new widget represented by a div on the page saying 'New Widget'.</p>
+
+<p>First, wipe out the boilerplate code in <code>widget_maker.js</code>.  The test we wrote previously will fail.  Delete the entire directory <code>tests/jasmine/client/integration/sample/</code>.</p>
+
+<p>Create a new directory in it's place: <code>/tests/jasmine/client/integration/widgets/</code></p>
+
+<p>and in that folder, start a new file:</p>
+
+<pre><code class="language-javascript">describe('creating a widget', function () {
+
+  beforeEach(function() {
+  });
+
+  it('clicking the button adds a div', function () {
+    // test here
+  });
+});
+// /tests/jasmine/client/integration/widgets/widgetSpec.js
+</code></pre>
+
+<p>In <code>widget_maker.html</code>, clean up the HTML.  We start with a single template, called within the <code>body</code> tag:</p>
+
+<pre><code class="language-html">&lt;head&gt;  
+  &lt;title&gt;Widget Maker&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;  
+  {{&gt; widgets }}
+&lt;/body&gt;
+
+&lt;template name="widgets"&gt;  
+  &lt;h1&gt;Your Widgets&lt;/h1&gt;
+&lt;/template&gt;  
+&lt;!-- widget_maker.html --&gt;  
+</code></pre>
+
+<p>And also, clear out <code>widget_maker.js</code>.  We will start fresh with a single 'widgets' template:</p>
+
+<pre><code class="language-javascript">if (Meteor.isClient) {  
+  Template.widgets.events({});  
+  Template.widgets.helpers({});
+}
+</code></pre>
+
+<p>And now, back to the test.  We want to click a button, and we want that event to create a new div on the page.  We don't actually <em>have</em> the button, or any other code, so after we write the test, Velocity will run it and show us that it failed.</p>
+
+<p>In <code>widgetSpec.js</code>, we add to our test:</p>
+
+<pre><code class="language-javascript">it('clicking the button adds a div', function () {  
+  // click the button
+  $('button#createWidget').click();
+
+  // gather the newly created divs
+  $newDivs = $('div.widget');
+
+  // assert the number of new divs
+  expect($newDivs.length).toEqual(1);
+});
+</code></pre>
+
+<p>And in our browser, we see our failing test:</p>
+
+<p><img src="https://draftin.com:443/images/29206?token=awPyalabDJ_4x2Y1bG1zF5Fx8BSMHvNSYgNggAuFXay5jYBME_KzFEJp5gA3_Xp6bNTMhtGSFqsPRF2xj1KDU9M" alt="first&lt;em&gt;failing&lt;/em&gt;test.png" title=""> </p>
+
+<p>You might get fatigued scanning the stack trace.  Most of those lines refer to the innards of the Jasmine package; only one line indicates where our actual test failed:</p>
+
+<pre><code>at Object.&lt;anonymous&gt; (http://localhost:60492/tests/jasmine/client/integration/widgets/widgetSpec.js?ac0ef60468124c2c3c2e31aa29a0f62dd0059c60:14:29)  
+</code></pre>
+
+<p>Something else is missing: we tried to click a non-existent button but the test did <em>not</em> tell us, "the button you tried to click does not exist." </p>
+
+<p>We understand, though. That's our starting place.  Let's add the button:</p>
+
+<pre><code class="language-html">&lt;template name="widgets"&gt;  
+  &lt;h1&gt;Your Widgets&lt;/h1&gt;
+  &lt;button id="createWidget" class="btn btn-success"&gt;Create a New Widget&lt;/button&gt;
+&lt;/template&gt;
+
+&lt;!-- widget_maker.html --&gt;  
+</code></pre>
+
+<p>And next, let's handle the event: clicking that button should add a widget.  This is our first opportunity to write actual code and we can do anything we want so long as it makes our test pass.  For the purposes of learning, we will start with a non-Meteor style, using jQuery to append the div.  Afterwards, we will refactor.</p>
+
+<pre><code class="language-javascript">Template.widgets.events({  
+  'click button#createWidget': function (event, template) {
+    $("body").append("&lt;div class='widget'&gt;New Widget&lt;/div&gt;");
+  }
+});
+
+// widget_maker.js
+</code></pre>
+
+<p>Back in the browser, our test passes. Again, notice that we did not click the button ourselves, and we don't see any 'New Widget' divs.  But, Velocity ran the app in a separate instance, clicked the button, and told us the good news in green.</p>
+
+<p><img src="https://draftin.com:443/images/29207?token=pqu8AJQy0iwe4KrIHmWYx9Mj7sdZ85SP2DilizIySRCZ4mtddX4A0EDx69ojvl1IRNLDIPDvdNxyhHM_49-ONT4" alt="first&lt;em&gt;test&lt;/em&gt;of&lt;em&gt;the&lt;/em&gt;new&lt;em&gt;widget&lt;/em&gt;button.png" title=""> </p>
+
+<p>Our test ensures clicking the button does indeed add a div to to body. But-- we haven't actually <em>created</em> a widget.  More importantly, we are working with Meteor and we do not want to do things like append divs using jQuery.  We would rather leverage Meteor's reactivity.  </p>
+
+<p>Clicking that widget-creating button should actually create a brand new widget, and the template should react accordingly.</p>
+
+<p>We need to refactor.  Test driven development <em>demands</em> that we refactor, so that we end up with the best possible code, not just our first grasp at whatever causes the test to pass.</p>
+
+<p>The test will now tell us, whatever happens, whether clicking that button causes 'New Widget' to appear.  </p>
+
+<p>In the next part, we will refactor our code so that clicking the button will insert a new widget into the Widgets collection.</p>
+
+<h1 id="widgetscollection">Widgets Collection</h1>
+
+<p>We want to <em>create</em> widgets, not just append text to the HTML.  After we click that button, we want to <em>persist</em> a widget to the database.  </p>
+
+<p>But we will let the tests guide us. For instance, we can write a test that, after clicking the button, the WidgetsCollection should include a new document.  Notice, we have not yet created the WidgetsCollection.  As an exercise, we will write the tests first and follow the trail from red to green.</p>
+
+<h1 id="redmeanssuccess">Red means Success</h1>
+
+<p>In this test, we will start by asserting that we start with 0 documents in the WidgetsCollection.  </p>
+
+<pre><code class="language-javascript">  it('clicking the button saves a new Widget', function () {
+    // First, check that we have 0 documents
+    var widget = WidgetsCollection.findOne({});
+
+    expect(widget).toBe(undefined);
+  )};
+
+  // /tests/jasmine/client/integration/widgets/widgetSpec.js
+</code></pre>
+
+<p>The test has successfully notified us that we need to define the WidgetsCollection.</p>
+
+<p><img src="https://draftin.com:443/images/29208?token=yzc4NT7IgPuvlAmH0nkOWeASjemdck-NcsDiK8obExz0x7Gsi8vI6__A8fggoSOW7XuEcqslcE8w3ataDXvW3xo" alt="widets&lt;em&gt;collection&lt;/em&gt;not_defined.png" title=""> </p>
+
+<p>We will add the WidgetsCollection code and see what the test tells us next.</p>
+
+<pre><code class="language-javascript">WidgetsCollection = new Mongo.Collection('widgets');
+
+// widget_maker.js
+</code></pre>
+
+<p>Yep, the test has changed to passing!</p>
+
+<p><img src="https://draftin.com:443/images/29209?token=UBdtJi8JjnAjlBEpYoVBOXlLrWMvajVWhDCiOv1NofUsYYJgXt0bLwhISW4Lu-BjLzfgTMLViUegZTeV8KzI284" alt="widget&lt;em&gt;collection&lt;/em&gt;now_exists.png" title=""> </p>
+
+<p>We can assure ourselves that this test is actually working but causing it to fail again, this time testing that we get 1 document instead of 0.  Change 1 line in the test:</p>
+
+<pre><code class="language-javascript">  it('clicking the button saves a new Widget', function () {
+    // First, check that we have 0 documents
+    var widget = WidgetsCollection.findOne({});
+
+    // Test that, instead of 'undefined', we get an object of some sort. This should fail.
+    expect(!!widget).toBe(true);
+  )};
+
+  // /tests/jasmine/client/integration/widgets/widgetSpec.js
+</code></pre>
+
+<p>Good-- the test fails.  We know that it's querying the WidgetsCollection and not finding any documents, as we expect. We can move on to clicking the button and actually creating a widget.</p>
+
+<p><strong>Note</strong>: Revert that 1 line, so it expects 0 documents:</p>
+
+<pre><code class="language-javascript">// First, check that we have 0 documents
+  var widget = WidgetsCollection.findOne({});
+
+  expect(widget).toBe(undefined);
+</code></pre>
+
+<h1 id="createthewidget">Create the widget</h1>
+
+<p>Add some lines to that test: clicking the button should produce a new widget, size 'medium'.</p>
+
+<pre><code class="language-javascript">it('clicking the button saves a new Widget', function () {  
+  // First, check that we have 0 documents
+  var widget = WidgetsCollection.findOne({});
+  expect( widget ).toBe(undefined);
+
+  // click the button
+  $('button#createWidget').click();
+
+  // This time, we should have a widget, and its size should be 'medium'
+  var widget = WidgetsCollection.findOne({});
+  expect( widget.size ).toBe("medium");
+});
+
+// /tests/jasmine/client/integration/widgets/widgetSpec.js
+</code></pre>
+
+<p>The failing test tells us we did not get a document, we only got 'undefined', and 'undefined' doesn't have a size.  </p>
+
+<p><img src="https://draftin.com:443/images/29210?token=PPGiQIOytyeq4IonRK9cCvSxZtqn3JnzPsuxwuN7gfVhsWupSJSYNej719aQ9e_T8H-INvQHtSIPKyMoZCgFQzI" alt="undefined&lt;em&gt;has&lt;/em&gt;no_size.png" title=""> </p>
+
+<p>Time to get back into our application and make the test pass.  Clicking the button should actually insert a document.  We could use a Meteor method, but let's stay simple: In <code>Template.widgets.events</code>, in the 'click button' event, we will insert a document with <code>size: 'medium'</code> into the widgets collection.</p>
+
+<p>But after adding this code, we will encounter a tricky testing gotcha.</p>
+
+<pre><code class="language-javascript">Template.widgets.events({  
+  'click button#createWidget': function (event, template) {
+    WidgetsCollection.insert({
+      size: "medium"
+    });
+
+    $("body").append("&lt;div class='widget'&gt;New Widget&lt;/div&gt;");
+  }
+});
+</code></pre>
+
+<p>Look at the failing test and guess what happened:</p>
+
+<p><img src="https://draftin.com:443/images/29211?token=4OKmP983O-96OEu4it9Lfi1Arq_bOL9WS2DG2kinZ5SQhBTYRy3zZaIeUA1JZk1fvtxVPb4hsog18ehC0oymap8" alt="need&lt;em&gt;to&lt;/em&gt;clear_database.png" title=""> </p>
+
+<h1 id="managingthetestdatabase">Managing the test database</h1>
+
+<p>The test says that it found an actual document, but it was expecting to find nothing at all.  Here's the thing about testing: sometimes you end up testing the tests instead of the application.  These tests are running in their own magical world where anything goes, so long as we will it.  And if we don't will it, it might go awry.  </p>
+
+<p>In this world, we want to start every test with an empty database and then see if our code causes the changes we expect.  </p>
+
+<p>But here, this test inserts a new document into the database every time it runs. Then, the next time it runs, it fails, because it expects to find nothing, but instead it finds the document from the previous run.</p>
+
+<p>If we were building a Ruby on Rails application, we might take the time to implement 'DatabaseCleaner', a package to help manage this problem.  <a href="https://github.com/DatabaseCleaner/database_cleaner">Scan the readme for extra credit.</a></p>
+
+<p>In Node, we can explore similar packages: <a href="https://github.com/emerleite/node-database-cleaner">node-database-cleaner </a></p>
+
+<p>Keeping a kosher test environment can be tricky.  Specifically with the test database, different people will pursue different paths, maybe using fixtures or some other strategy, but in our case, we will remove all documents before running each test.</p>
+
+<pre><code class="language-javascript">describe('creating a widget', function () {
+
+  beforeEach(function() {
+    WidgetsCollection.find().forEach( function (widget) {
+      WidgetsCollection.remove({_id: widget._id});
+    });
+  });
+
+  ...
+});
+</code></pre>
+
+<p>Another trick: we cannot use <code>WidgetsCollection.remove({})</code> because we are using Meteor, and we are testing client-side code.  Meteor doesn't allow the client to remove documents willy-nilly, so we need to laboriously remove each document by id.  In our actual application, we won't be wiping the database.</p>
+
+<p>But, here we are in the 'test' environment and we can establish whatever state of the app we want.  In the future, we may decide to seed the database with different widgets-- small, medium, and large.  But, for now, when the test runs against an empty database, our test passes.</p>
+
+<p><img src="https://draftin.com:443/images/29212?token=kmsAE1TwzsSvdxv9x-n4c5VBmjvUpmbSQkaO1FuHyNkbooshkTK-OHsHwzRC3zcQpmYXjbACX91oPWSuMPru8rI" alt="saves&lt;em&gt;a&lt;/em&gt;new&lt;em&gt;widget&lt;/em&gt;to&lt;em&gt;the&lt;/em&gt;db.png" title=""> </p>
+
+<h1 id="testingbyhand">Testing by hand</h1>
+
+<p>We can use our own two hands to manually test that, yes, in the browser, clicking the button saves a new widget.</p>
+
+<p><img src="https://draftin.com:443/images/29213?token=TQCwDwOpzC9VLgBppNtqR4aVAK9-C9qJ-oEc_8TaBGEE1oh6VPnRmSKMuMrxc6l_gSMvq5v7ZC56rhW4nBUIRHc" alt="manually&lt;em&gt;click&lt;/em&gt;and&lt;em&gt;test&lt;/em&gt;for&lt;em&gt;new&lt;/em&gt;widget.png" title=""> </p>
+
+<h1 id="nextsteps">Next Steps</h1>
+
+<p>First, we wrote a test that failed and then the test told us why it failed: some code was missing or incorrect.  Next, we added some code and the test passed.  Last, we refactored our code, checking to see the test stayed green while we improved the app.  As we went, we managed our test environment.</p>
+
+<p>What about next steps? Users might want to select 'small', 'medium' or 'large'. This same process can guide us: </p>
+
+<p>First we write a test: <code>After selecting 'small' and clicking the button, we get a 'small widget'</code>.  That test fails, so we add the select box and the new event handler.  The test passes.  Then, we refactor to improve the UX and add more options like <code>color: 'blue'</code>.</p>
+
+<h1 id="summary">Summary</h1>
+
+<p>Please note: if you are like me, you will find that testing Meteor apps is <em>challenging</em>.  Discovering best practices is <em>difficult</em>.  Developing your test suite will take <em>time</em>.  </p>
+
+<p>It might even make sense to practice these techniques separately from your app, while you wait for the Meteor testing ecosystem to mature.</p>
+
+<p><em>But</em>, keep your eye on the ball.  Eventually, you might realize great profits from your tests. As your widget application becomes increasingly popular and you add more features, the tests can guide your code and you will feel confident that everything works.</p>
+
+            <footer id="post_footer_willsong">
+                <section id="share_post_willsong">
+                    <h4>Share this post</h4>
+                    <a class="fa fa-twitter" href="https://twitter.com/share?text=Test-Driven%20Meteor%3A%20A%20Very%20Basic%20Tutorial&amp;url=http://localhost:2368/test-driven-meteor-very-basic-tutorial/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"></a>
+                    <a class="fa fa-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/test-driven-meteor-very-basic-tutorial/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"></a>
+                    <a class="fa fa-google-plus" href="https://plus.google.com/share?url=http://localhost:2368/test-driven-meteor-very-basic-tutorial/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;"></a>
+                </section>
+
+                <section id="author_willsong">
+                    <img src="http://www.gravatar.com/avatar/9d7ef290cb87ca79dd8ea7879c465dfb?s=250&amp;d=mm&amp;r=x" alt="Mark Hurwitz">
+                    <h4><a href="../author/mark/">Mark Hurwitz</a></h4>
+                    
+                    <p></p>
+                </section>
+
+                <section id="comments_willsong">
+                    
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'mhurwi-blog';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+                </section>
+            </footer>
+        </article>
+
+
+    </div>
+
+</main>
+
+
+    
+<footer id="foot_willsong">
+	
+	<section id="foot_content">
+		<ul id="sociallinks_willsong">
+			<li><a href="../rss/index.rss" class="fa fa-rss"></a></li>
+			<li><a href="index.html#" class="fa fa-twitter"></a></li>
+			<li><a href="index.html#" class="fa fa-facebook"></a></li>
+			<li><a href="index.html#" class="fa fa-github"></a></li>
+		</ul>
+	</section>
+	
+	<section id="copyright_willsong">
+		© 2015 Willsong. Theme crafted by <a href="http://marcosn.com/">marcosn.com</a>. Proudly powered by <a href="http://ghost.org/">Ghost</a>.
+	</section>
+</footer>
+    <script src="../public/jquery.js?v=d90acbffcb"></script>
+
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="../assets/js/prettify.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="../assets/js/main.js?v=d90acbffcb"></script>
+
+</body>

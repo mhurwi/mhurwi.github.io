@@ -1,0 +1,1236 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel><title>Mhurwi</title><description>Thoughts, stories and ideas.</description><link>http://localhost:2368/</link><generator>Ghost 0.6</generator><lastBuildDate>Sat, 24 Oct 2015 15:05:20 GMT</lastBuildDate><atom:link href="http://localhost:2368/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title>WebRTC using Meteor &amp; PeerJS: A Basic Tutorial</title><description>&lt;p&gt;WebRTC means 'Web Realtime Communications' and it comes built into certain browsers like Chrome and Firefox.  The &lt;a href="http://www.webrtc.org/native-code/native-apis"&gt;WebRTC API&lt;/a&gt;  covers all the steps to stream live video, audio &amp;amp; data, but it becomes complicated when you fulfill all the steps on the way to calling your friends.  &lt;a href="http://peerjs.com/"&gt;PeerJS&lt;/a&gt; abstracts away&lt;/p&gt;</description><link>http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/</link><guid isPermaLink="false">78011f1a-18a6-4375-8604-91da0297ef56</guid><dc:creator>Mark Hurwitz</dc:creator><pubDate>Mon, 03 Aug 2015 16:09:00 GMT</pubDate><content:encoded>&lt;p&gt;WebRTC means 'Web Realtime Communications' and it comes built into certain browsers like Chrome and Firefox.  The &lt;a href="http://www.webrtc.org/native-code/native-apis"&gt;WebRTC API&lt;/a&gt;  covers all the steps to stream live video, audio &amp;amp; data, but it becomes complicated when you fulfill all the steps on the way to calling your friends.  &lt;a href="http://peerjs.com/"&gt;PeerJS&lt;/a&gt; abstracts away much of the WebRTC API and leaves us with a concise set of methods and callbacks to connect our calls.&lt;/p&gt;
+
+&lt;p&gt;Follow this tutorial and build a Meteor app with 2-person video and audio chat.  First, we setup PeerJS and see how it works.  Later, we add in user management so that, when our friend is online, we can click his email and have a video chat.&lt;/p&gt;
+
+&lt;p&gt;If you have never worked with Meteor.js, you should give it a shot.   &lt;a href="https://www.meteor.com/install"&gt;Learn to install Meteor here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Note: We're using Chrome.  You could choose Firefox or maybe Opera.  But I've not tested IE on Windows and Safari does &lt;em&gt;not&lt;/em&gt; support webrtc (at this time).&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/mhurwi/webrtc-meteor-peerjs"&gt;See the code here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://webrtc-peerjs.meteor.com"&gt;Try a live demo here&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Let's get started.&lt;/p&gt;
+
+&lt;h2 id="createanewmeteorapp"&gt;Create  a New Meteor App&lt;/h2&gt;
+
+&lt;p&gt;Generate a new meteor app using meteor's command line tool.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor create webrtc-peerjs
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This generates a boilerplate starter app that we will &lt;em&gt;mostly&lt;/em&gt; delete.  We will hire a top-notch designer, so you can ignore (or remove) the CSS for now.  Your JS and HTML files should look like this: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isClient) {  
+}
+
+if (Meteor.isServer) {  
+}
+
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;head&amp;gt;  
+  &amp;lt;title&amp;gt;webrtc-peerjs&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+
+&amp;lt;body&amp;gt;  
+  &amp;lt;h1&amp;gt;Welcome to Meteor!&amp;lt;/h1&amp;gt;
+
+  {{&amp;gt; hello}}
+&amp;lt;/body&amp;gt;
+
+&amp;lt;template name="hello"&amp;gt;  
+&amp;lt;/template&amp;gt;
+
+&amp;lt;!-- webrtc-peerjs.html--&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We will fit all our code into these 2 files, after we paste in one additional file: PeerJS&lt;/p&gt;
+
+&lt;h2 id="addpeerjs"&gt;Add Peerjs&lt;/h2&gt;
+
+&lt;p&gt;We are going to find the latest PeerJS and paste it into our project.  No packages right now.&lt;/p&gt;
+
+&lt;p&gt;Copy the peer.js code from here: &lt;a href="https://raw.githubusercontent.com/peers/peerjs/master/dist/peer.js"&gt;https://raw.githubusercontent.com/peers/peerjs/master/dist/peer.js&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;We only need to load this in the client, so create a 'client' directory, a new 'peer.js' file, and paste the code.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;/*! peerjs build:0.3.13, development. Copyright(c) 2013 Michelle Bu &amp;lt;michelle@michellebu.com&amp;gt; */
+
+...
+
+// client/peer.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="getapeerjsapikey"&gt;Get a PeerJS API key&lt;/h2&gt;
+
+&lt;p&gt;PeerJS allows us access to their cloud servers, so our users can get special 'peer ids' that work like phone numbers specific to our app.&lt;/p&gt;
+
+&lt;p&gt;Let's get our Peer JS API keys now.&lt;/p&gt;
+
+&lt;p&gt;Go to &lt;a href="http://peerjs.com/peerserver"&gt;http://peerjs.com/peerserver&lt;/a&gt;.  Click the 'Developer - Free' button to get an API key.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/31149?token=s4Sd2o2f-JXQLnJC6CKql1xGA6mZd_KHiWIE1JXTC1cZ3oFtkT4it7dANkIbvBHUYYThV3M8wMhlM_L10huUUx8" alt="PeerJS API key button" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;And you will end up seeing your key:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/31150?token=f-Bi8yYYKv-2X9IpCzks3Zcsv58_MTHw6y6nqYZiykzqV0mpPVHkQLo3SGY7mTBDzNE-SalDkvVsgbjfflZh-uk" alt="Seeing your PeerJS key" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;You will use this key later, when you create a new Peer object, like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;var peer = new Peer({key: 'blahblah' ...});  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But before we hack our JavaScript, let's stub out a minimal HTML template.&lt;/p&gt;
+
+&lt;h2 id="bareboneshtmltemplate"&gt;Barebones HTML Template&lt;/h2&gt;
+
+&lt;p&gt;Our template needs only the basics.  A div each for 'myVideo' and 'theirVideo'.  An input to paste 'their' peer ID.  And 2 buttons: 'makeCall' &amp;amp; 'endCall'.&lt;/p&gt;
+
+&lt;p&gt;Here's the entirety of our html file: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;head&amp;gt;  
+  &amp;lt;title&amp;gt;webrtc-peerjs&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+
+
+&amp;lt;body&amp;gt;  
+  &amp;lt;h1&amp;gt;Welcome to Meteor!&amp;lt;/h1&amp;gt;
+
+  {{&amp;gt; hello}}
+&amp;lt;/body&amp;gt;
+
+&amp;lt;template name="hello"&amp;gt;  
+    &amp;lt;h2&amp;gt;Video Chat&amp;lt;/h2&amp;gt;
+    &amp;lt;div id="video-container"&amp;gt;
+      &amp;lt;!-- note the 'autoplay' --&amp;gt;
+      Their video: &amp;lt;video id="theirVideo" class="theirVideo" autoplay&amp;gt;&amp;lt;/video&amp;gt;
+      &amp;lt;video id="myVideo" muted="true" class="myVideo" autoplay&amp;gt;&amp;lt;/video&amp;gt;: Your video
+    &amp;lt;/div&amp;gt;
+
+    &amp;lt;h2&amp;gt;Controls&amp;lt;/h2&amp;gt;
+    &amp;lt;div&amp;gt;
+      &amp;lt;p&amp;gt;Your id: &amp;lt;span id="myPeerId"&amp;gt;...&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;
+      &amp;lt;p&amp;gt;Make a call&amp;lt;/p&amp;gt;&amp;lt;br&amp;gt;
+      &amp;lt;input type="text" placeholder="Call user id..." id="remotePeerId"&amp;gt;
+      &amp;lt;p&amp;gt;&amp;lt;a href="#" id="makeCall"&amp;gt;Call&amp;lt;/a&amp;gt;&amp;lt;/p&amp;gt;
+      &amp;lt;p&amp;gt;&amp;lt;a href="#" id="endCall"&amp;gt;End call&amp;lt;/a&amp;gt;&amp;lt;/p&amp;gt;
+    &amp;lt;/div&amp;gt;
+&amp;lt;/template&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We will access our local webcam and see our own video in '#myVideo'.&lt;/p&gt;
+
+&lt;p&gt;We will be able to paste our friend's peer id into the input, click 'makeCall' and see our friend's video '#theirVideo'. Clicking 'endCall' will hangup.&lt;/p&gt;
+
+&lt;p&gt;Now we can wire up the JavaScript.&lt;/p&gt;
+
+&lt;h2 id="thejavascript"&gt;The JavaScript&lt;/h2&gt;
+
+&lt;p&gt;We will have our 'hello' template do a couple things as soon as it loads.  First, it should initiate our PeerJS connection.  We can do this in the template's 'onCreated' callback:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isClient) {  
+  Template.hello.onCreated(function () {
+      // Create a Peer instance
+      window.peer = new Peer({
+      key: 'applebanana',  // get a free key at http://peerjs.com/peerserver
+      debug: 3,
+      config: {'iceServers': [
+        { url: 'stun:stun.l.google.com:19302' },
+        { url: 'stun:stun1.l.google.com:19302' },
+      ]}
+    });
+
+    // Handle event: upon opening our connection to the PeerJS server
+    peer.on('open', function () {
+      $('#myPeerId').text(peer.id);
+    });
+
+    // Handle event: remote peer receives a call
+    peer.on('call', function (incomingCall) {
+      window.currentCall = incomingCall;
+      incomingCall.answer(window.localStream);
+      incomingCall.on('stream', function (remoteStream) {
+        window.remoteStream = remoteStream;
+        var video = document.getElementById("theirVideo")
+        video.src = URL.createObjectURL(remoteStream);
+      });
+    });
+  });
+}
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This code does 3 important things.  First, it connects to the PeerJS cloud server, sending along an options object that includes our API key, the debug level (3 means 'tell me everything') and the STUN &amp;amp; TURN servers that we want to use.  &lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Note: STUN &amp;amp; TURN, as well as ICE, are crucial topics.  But, we don't need to understand them for this 'hello world' style tutorial. &lt;a href="http://www.html5rocks.com/en/tutorials/webrtc/basics/"&gt;Read more when you're ready.&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;We added two callbacks, for two events: when our PeerJS connection opens, and when a client receives a call.  First, when our client connects with the PeerJS cloud servers and receives our local peer id, is the 'open' event.  That local peer id acts as a phone number.  We can give it to a friend and he can call us.  Similarly, when our friend loads the app on &lt;em&gt;his&lt;/em&gt; browser, his browser also hears the 'open' event and gets his &lt;em&gt;own&lt;/em&gt; peer id.  We can use that peer id to call &lt;em&gt;him&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Second, when our local peer receives an incoming call, is the 'call' event. When we call our friend, this callback fires in his browser, creates a 'call' object and sets it as &lt;code&gt;window.currentCall&lt;/code&gt;.  &lt;/p&gt;
+
+&lt;p&gt;Note, that last callback has its &lt;em&gt;own&lt;/em&gt; callback, fired when our friend receives our video &amp;amp; audio stream. In WebRTC calls, we add a &lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream"&gt;MediaStream&lt;/a&gt;, like a webcam feed, into the connection. If we wanted, we could only add audio, or share our screen (advanced).&lt;/p&gt;
+
+&lt;p&gt;When we call our friend, we send our video stream. Our friend will take our stream, set it to the var 'window.remoteStream', and show it in his browser, with the lines: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var video = document.getElementById("theirVideo")  
+video.src = URL.createObjectURL(remoteStream);  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Speaking of our MediaStream, we need to access it before we make calls. Continuing in the same 'onCreated' callback: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isClient) {  
+  Template.hello.onCreated(function () {
+    ...
+
+        navigator.getUserMedia = ( navigator.getUserMedia ||
+                            navigator.webkitGetUserMedia ||
+                            navigator.mozGetUserMedia ||
+                            navigator.msGetUserMedia );
+
+    // get audio/video
+    navigator.getUserMedia({audio:true, video: true}, function (stream) {
+        //display video
+        var video = document.getElementById("myVideo");
+      video.src = URL.createObjectURL(stream);
+        window.localStream = stream;
+      },
+      function (error) { console.log(error); }
+    );
+
+  });
+}
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The type of 'getUserMedia' function available depends on the browser we use, and each browser requires its own prefix. Browser makers hope to eliminate that inconsistency soon.&lt;/p&gt;
+
+&lt;p&gt;With this code, the template loads, connects to the PeerJS cloud server, gets a peer id for our local user, and grabs streaming audio &amp;amp; video from our computer. &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Note: with 'audio: true', you will get feedback when you test locally with yourself.  Setting 'audio: false' may be more pleasant.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We can add 2 events and start making calls.  In the Template.hello.events:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isClient) {  
+  Template.hello.events({
+    "click #makeCall": function () {
+      var outgoingCall = peer.call($('#remotePeerId').val(), window.localStream);
+      window.currentCall = outgoingCall;
+      outgoingCall.on('stream', function (remoteStream) {
+        window.remoteStream = remoteStream;
+        var video = document.getElementById("theirVideo")
+        video.src = URL.createObjectURL(remoteStream);
+      });
+    },
+
+    "click #endCall": function () {
+      window.currentCall.close();
+    }
+  });
+
+  ...
+
+}
+
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The 'makeCall' event creates a new call, passing in our friend's peer id that we typed into our HTML input and also our localStream (mic &amp;amp; video).  We set that call to 'window.currentCall'.&lt;/p&gt;
+
+&lt;p&gt;We added a callback, similar to the other 'call' callback in 'Template.hello.onCreated'. When our friend answers our call and sends back his own media stream, this callback fires in our brower and adds our friend's video track to the '#theirVideo' HTML element.  &lt;/p&gt;
+
+&lt;p&gt;Thus, we called our friend, he answered, the call, grabbed our video and sent back his own video. Voila-- two-way video chat.&lt;/p&gt;
+
+&lt;p&gt;The other 'click' event, 'endCall', closes the 'window.currentCall'.  This is like 'hangup'.  This closes the call instantly on your end.  Interestingly, if you watch carefully, it takes 5+ seconds for your friends client to close on his end. &lt;/p&gt;
+
+&lt;h2 id="tryitout"&gt;Try it out&lt;/h2&gt;
+
+&lt;p&gt;Load up 2 tabs-- one tab must be private (Mac: Cmd+Shift+N, Windows: Ctrl+Shift+N).  Copy the peer ID from one tab into the other, click 'call' and see yourself.  One video is local, the other is remote. &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/31152?token=iBTW_9DFae7QwIJenoJB2HiQmCAYH3SBzurw7NYrdT1x9VsDCIpUHvqp0LMyM00qzS0S7uhg7D_b-wuBggR8_y0" alt="Showing local and remote video" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/mhurwi/webrtc-meteor-peerjs/tree/basic"&gt;You can view the code thusfar on the 'basic' branch&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id="callingusersbyemail"&gt;Calling users by email&lt;/h1&gt;
+
+&lt;p&gt;Let's take this app to the &lt;em&gt;next level&lt;/em&gt;.  We want to see a list of online users, click one and enter a video chat.&lt;/p&gt;
+
+&lt;h2 id="addusers"&gt;Add users&lt;/h2&gt;
+
+&lt;p&gt;First, we add basic Meteor accounts stuff. &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor add accounts-ui
+
+...
+
+$ meteor add accounts-password
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And, in the main HTML, add the 'loginButtons' template so we can login and register new users.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;body&amp;gt;  
+  &amp;lt;h1&amp;gt;Welcome to Meteor!&amp;lt;/h1&amp;gt;
+  {{&amp;gt; loginButtons}}
+  {{&amp;gt; hello}}
+&amp;lt;/body&amp;gt;
+
+&amp;lt;!-- webrtc-peerjs.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="addpresence"&gt;Add Presence&lt;/h2&gt;
+
+&lt;p&gt;Next, we add a package to that gives us Presences, a special collection that monitors online users.  &lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/dburles/meteor-presence"&gt;Read about Meteor Presence here&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor add tmeasday:presence
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="savethecurrentusersspeerid"&gt;Save the current users's Peer ID&lt;/h2&gt;
+
+&lt;p&gt;Now, we have user accounts and will be able to see which users are online.  But, in addition to a user's presence, we must also know his peer id, so that we can call him via PeerJS.  We will refactor the PeerJS 'on open' callback in 'Template.hello.onCreated':  &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;// within the Template.hello.onCreated callback
+
+peer.on('open', function () {  
+  $('#myPeerId').text(peer.id);
+  // update the current user's profile
+  Meteor.users.update({_id: Meteor.userId()}, {
+    $set: {
+      profile: { peerId: peer.id}
+    }
+  });
+});
+
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Upon opening the PeerJS connection and receiving a peer id, we save the peer id to the user's profile.&lt;/p&gt;
+
+&lt;h2 id="hideuntilcurrentuserloggedin"&gt;Hide until current user logged in&lt;/h2&gt;
+
+&lt;p&gt;Let's hide all the video stuff until the user is logged in. Otherwise, the template will load without any user, and then we'd have add an 'onLogin' callback to update the user's peer id after logging in.  And anyways, there's no use seeing the call controls before you're logged in.  Checking for the current user improves the UX:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;body&amp;gt;  
+  &amp;lt;h1&amp;gt;Welcome to Meteor!&amp;lt;/h1&amp;gt;
+  {{&amp;gt; loginButtons}}
+  {{#if currentUser}}
+    {{&amp;gt; hello}}
+  {{/if}}
+&amp;lt;/body&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="publishusers"&gt;Publish users&lt;/h2&gt;
+
+&lt;p&gt;Let's remove autopublish and properly publish &amp;amp; subscribe users and presences.&lt;/p&gt;
+
+&lt;p&gt;First, remove autopublish&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor remove autopublish
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, publish online users and presences. Note that this will be our only server-side code.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isServer) {  
+  Meteor.publish('presences', function() {
+    return Presences.find({}, { userId: true });
+  });
+  Meteor.publish("users", function () {
+    return Meteor.users.find({}, {fields: {"profile.peerId": true, "emails.address": true} });
+  });
+}
+
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Back on the client, in 'Template.hello.onCreated' subscribe to 'users' and 'presences':&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;Template.hello.onCreated(function () {  
+    Meteor.subscribe("users");
+    Meteor.subscribe("presences");
+    // ...
+}
+
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Add a helper to find online users:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isClient) {  
+  Template.hello.helpers({
+    users: function () {
+      var userIds = Presences.find().map(function(presence) {return presence.userId;});
+      // exclude the currentUser
+      return Meteor.users.find({_id: {$in: userIds, $ne: Meteor.userId()}});
+    }
+  });
+}
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;First, find the Presences and get an array of just their corresponding userIds.  Then find users using that array.&lt;/p&gt;
+
+&lt;p&gt;Show users in the HTML:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;h2&amp;gt;Controls&amp;lt;/h2&amp;gt;  
+&amp;lt;div&amp;gt;  
+  &amp;lt;p&amp;gt;Your id: &amp;lt;span id="myPeerId"&amp;gt;...&amp;lt;/span&amp;gt;&amp;lt;/p&amp;gt;
+  &amp;lt;p&amp;gt;Make a call&amp;lt;/p&amp;gt;&amp;lt;br&amp;gt;
+  {{#each users}}
+    &amp;lt;a href="#" id="makeCall"&amp;gt;Call {{#each emails}}{{address}}{{/each}}&amp;lt;/a&amp;gt;
+  {{/each}}
+&amp;lt;/div&amp;gt;
+
+&amp;lt;!-- webrtc-peerjs.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note: we can make better hacks to get the user's email, but this works for now.&lt;/p&gt;
+
+&lt;p&gt;At this point, we can see who's online. Now we can refactor the 'makeCall' event to use the user's peer id.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;// Template.hello.events:
+    "click #makeCall": function () {
+      var user = this;
+      var outgoingCall = peer.call(user.profile.peerId, window.localStream);
+      window.currentCall = outgoingCall;
+      outgoingCall.on('stream', function (remoteStream) {
+        window.remoteStream = remoteStream;
+        var video = document.getElementById("theirVideo")
+        video.src = URL.createObjectURL(remoteStream);
+      });
+    },
+
+// webrtc-peerjs.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This app is all set, so try it out.  Login as 2 different users in 2 different tabs.  Click to call an online user.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/31209?token=fOP9C_9whIOtESMcDHMEoHmi-7rxPJ8-hN972gKNJ2PwDqxL8SWBB-PlON32-jO8jZ6hmvIQ_GGezHFZ7b4Pqc4" alt="Click to call" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/mhurwi/webrtc-meteor-peerjs"&gt;See the code at github&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://webrtc-peerjs.meteor.com"&gt;Try the demo here&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id="summary"&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;This was a 'hello world' style tutorial with a big payoff: encrypted, live streaming audio &amp;amp; video communications between two browsers. &lt;/p&gt;
+
+&lt;p&gt;You might want to do more:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;muting the audio&lt;/li&gt;
+&lt;li&gt;toggling video on &amp;amp; off&lt;/li&gt;
+&lt;li&gt;screensharing&lt;/li&gt;
+&lt;li&gt;creating 'full mesh' conference calls with 3+ people&lt;/li&gt;
+&lt;li&gt;streaming data for games&lt;/li&gt;
+&lt;li&gt;deploying across iOS and Android&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;There's a lot to learn and the WebRTC API seems to be rapidly evolving.  &lt;a href="http://hancke.name/webrtc/screenshare/#/4"&gt;Screensharing&lt;/a&gt; used to be more straightforward, but Chrome has made it so you must use a browser extension.  You can expect other WebRTC internals to change as well. &lt;/p&gt;
+
+&lt;p&gt;But WebRTC is ready for production and it is awesome.  Give it a try! &lt;/p&gt;</content:encoded></item><item><title>A Basic Cucumber Meteor Tutorial</title><description>&lt;p&gt;I have hit my head against several walls as I endeavored to start testing my Meteor applications.  Recently, one of the main Velocity authors pushed important updates to his &lt;a href="https://github.com/xolvio/meteor-cucumber"&gt;meteor-cucumber&lt;/a&gt; package. Before this update, I never bothered with Cucumber. But I saw in this update an opportunity to finally learn&lt;/p&gt;</description><link>http://localhost:2368/a-basic-cucumber-meteor-tutorial/</link><guid isPermaLink="false">8ae6aaca-e849-4db6-9aae-e4125b32fc4f</guid><dc:creator>Mark Hurwitz</dc:creator><pubDate>Tue, 09 Jun 2015 16:12:00 GMT</pubDate><content:encoded>&lt;p&gt;I have hit my head against several walls as I endeavored to start testing my Meteor applications.  Recently, one of the main Velocity authors pushed important updates to his &lt;a href="https://github.com/xolvio/meteor-cucumber"&gt;meteor-cucumber&lt;/a&gt; package. Before this update, I never bothered with Cucumber. But I saw in this update an opportunity to finally learn Cucumber and improve my ability to test my Meteor apps.&lt;/p&gt;
+
+&lt;p&gt;Follow this tutorial and see what I learned.  In it, we will build a Meteor application that creates widgets. Users will be required to log in before they can create a widget. They will enter a name, click a button and voila! A new widget appears.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/mhurwi/cucumber-meteor-tutorial"&gt;See the code on github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id="firststeps"&gt;First Steps&lt;/h2&gt;
+
+&lt;p&gt;First, create an app: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor create cuke-tut
+$ cd cuke-tut
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And add the cucumber package: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor add xolvio:cucumber
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Run the app: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Look at your server console.  You will see a message, "You can see the mirror logs at:" and a file path cucumber logs.  Here is a command using a relative file path.  From within the &lt;code&gt;cuke-tut/&lt;/code&gt; tutorial, run this command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;tail -f ./.meteor/local/log/cucumber.log  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A 'mirror' is a separate instance of our meteor app, running on a different port and accessing a different database. The cucumber tests will run against a mirror and send output into this log file, which we will look at constantly.&lt;/p&gt;
+
+&lt;p&gt;But first, open your browser, and look at the 'html-reporter'.  There is a button to create sample test files.  Click it and see the resulting failure.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29745?token=lyL-IopOU9R49NIIXFn43g_hZoYpv5PoRubpUeLN4m-TGSC0VwCSk-XQCt0djHzZb3RJRqchIGdYJCEc1oD4lZk" alt="Creating sample tests and seeing failure" title=""&gt; &lt;/p&gt;
+
+&lt;h2 id="usingnpmdependencies"&gt;Using NPM dependencies.&lt;/h2&gt;
+
+&lt;p&gt;&lt;em&gt;updated June 11, 2015&lt;/em&gt; &lt;/p&gt;
+
+&lt;p&gt;The following error seems to be fixed as of xolvio:cucumber v0.9.0.  The package will run 'npm install' so we don't need to.  &lt;/p&gt;
+
+&lt;p&gt;If you do see the following error in the logs, it's caused by an unresolved NPM dependency.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29693?token=4DspQG7bl4bLEK9fchKIsDE5PSnA_MpXK67LDIno3D6IpgOlE7B-Sv40vaPjJqq8frljK2vUiIQM9FKabY-wD8E" alt="no underscore" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Look at the newly generated sample file, &lt;code&gt;/tests/cucumber/features/step_definitions/sample_steps.js&lt;/code&gt;, line 6.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;// You can include npm dependencies for support files in tests/cucumber/package.json
+  var _ = require('underscore');
+
+// /tests/cucumber/features/step_definitions/sample_steps.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If you are using an older version of xolvio:cucumber,  you need to manually install npm packages from within &lt;code&gt;/tests/cucumber&lt;/code&gt;.  &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ cd tests/cucumber/
+$ npm install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We should now see that our tests run as expected, and we see an error in the logs: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29694?token=NCG_HmNQmYVaC4LQSVmS3vtEijbsc8JYhtHijBZV-j4a-TKDPueXNqU5NdZuVWusAV2zSQtpD8tx7KzHnWGXIZs" alt="intentional failure" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;And the last few lines of output: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29695?token=ckRWD-xCO9GEejk-77hJrCu_1Cn8DRgOnc4AYDhqsGsnRcOT_yTCN9rw2WEBkvp1Gb7QSHaYSrd1X4okGU1Ai-c" alt="failure output" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Let's go to &lt;code&gt;tests/cucumber/features/sample.feature&lt;/code&gt; and read the feature that fails: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-gherkin"&gt;Scenario: This scenario will not both on dev and on CI  
+    When I navigate to "/"
+    Then I should see the title "intentional failure"
+
+# /tests/cucumber/features/sample.feature
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This file is written using the 'Gherkin' language.  It's actually a language that uses a few choice keywords like 'Feature', 'Background', 'Given', 'When', 'Then'. &lt;a href="https://github.com/cucumber/cucumber/wiki/Gherkin"&gt;Read the wiki for extra credit.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;We see the problem on line 22.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Then I should see the title "intentional failure"  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Change that line to reflect the actual title, 'cuke-tut': &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Then I should see the title "cuke-tut"  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, you can see in the logs, the test passes: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29679?token=rOMIAHz6QmpbVNF_auKl0gznbElfmQjnpmHQkRcTmE1DPIR-eZKurmbJ4zqKSQbiE7KmSZRKTUpjYTv7WiLLOt8" alt="First passing test" title=""&gt; &lt;/p&gt;
+
+&lt;h2 id="tagsdev"&gt;Tags: @dev&lt;/h2&gt;
+
+&lt;p&gt;Note, this file contains several scenarios but only the scenario tagged &lt;code&gt;@dev&lt;/code&gt; is running.&lt;/p&gt;
+
+&lt;p&gt;In cucumber, tags let us run specific scenarios in different situations.  This particular package adds the &lt;code&gt;@dev&lt;/code&gt; and only scenarios with that tag will run.&lt;/p&gt;
+
+&lt;p&gt;When we save a test file, the Meteor development environment will reload and only scenarios tagged &lt;code&gt;@dev&lt;/code&gt; will run.  Remove that tag from the sample file to see what I mean. In the logs: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29680?token=rhNO7cfD_y4oWv9WQOW7-QT_NGCfJzBBy7dDBWuv0ppTyTyMgNXSm1WAUgeeTA7zJEJl12JZghOipHIjLMXabrA" alt="Need to use @dev tag" title=""&gt; &lt;/p&gt;
+
+&lt;h2 id="tagsignore"&gt;Tags: @ignore&lt;/h2&gt;
+
+&lt;p&gt;If you implement a continuous integration server, &lt;code&gt;@dev&lt;/code&gt; does not apply.&lt;/p&gt;
+
+&lt;p&gt;On your CI server, &lt;em&gt;all&lt;/em&gt; the scenarios will run, with an exception: scenarios tagged &lt;code&gt;@ignore&lt;/code&gt; will &lt;em&gt;not&lt;/em&gt; run.  &lt;/p&gt;
+
+&lt;p&gt;For now, we will be working in development only, so we rely on the &lt;code&gt;@dev&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;h2 id="customtags"&gt;Custom tags&lt;/h2&gt;
+
+&lt;p&gt;If you want to manually create new tags, you will need to tell the server.  You could add a tag &lt;code&gt;@foo&lt;/code&gt; to a scenario, and tell the server to only run that scenario.  Run your server with this command: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;CUCUMBER_TAGS='@foo' meteor  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id="buildingourcreatewidgetfeature"&gt;Building our 'create widget' feature&lt;/h2&gt;
+
+&lt;p&gt;In this app, when a logged-in user clicks the "Create Widget" button, they should be rewarded with a new widget.  We will develop this app BDD style. First, we will write Cucumber scenarios describing how we wish the app behaved and then we will create code so that the app actually does behave that way.  &lt;/p&gt;
+
+&lt;p&gt;First, remove the &lt;code&gt;@dev&lt;/code&gt; tag from the old, sample feature in &lt;code&gt;/tests/cucumber/features/sample.feature&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Next, create a new file, &lt;code&gt;/tests/cucumber/features/create_widget.feature&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Add this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-gherkin"&gt;Feature: Creating a widget
+
+  As a user, so that I can create a new widget, I want to click a button and see my new widget.
+
+  @dev
+  Scenario: Clicking the 'create widget' button will create and show a widget
+    Given I am logged in
+    When I fill in the name with "Alpha"
+    And I click the button "Create Widget"
+    Then I should see a widget named "Alpha"
+
+# /tests/cucumber/features/create_widget.feature
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Our new scenario is not backed by any 'step definitions'. Without step definitions, the tests don't actually &lt;em&gt;do&lt;/em&gt; anything and they don't make any assertions.  View the logs: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29681?token=nrkvN6JSIXQQYKeYQBtzJZ-S8encO4_Q2BFM3EgUFonkvWG-1jrNjwYj045EzVuO_b7Ik26WxzOVRFQBrP9olzI" alt="Feature without step definitions" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;This means, we should create a new file and start defining these steps with JavaScript.  Create &lt;code&gt;/tests/cucumber/features/step_definitions/create_widget_steps.js&lt;/code&gt; and follow the pattern:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;(function () {
+
+  'use strict';
+
+  module.exports = function () {
+
+    this.Given(/^I am logged in$/, function (callback) {
+      callback.pending();
+    });
+
+    this.When(/^I fill in the name with "([^"]*)"$/, function (arg1, callback) {
+      callback.pending();
+    });
+
+    this.When(/^I click the button "([^"]*)"$/, function (arg1, callback) {
+      callback.pending();
+    });
+
+    this.Then(/^I should see a widget named "([^"]*)"$/, function (arg1, callback) {
+      callback.pending();
+    });
+
+  }
+
+})();
+
+// /tests/cucumber/features/step_definitions/create_widget_steps.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The logs show our pending scenarios.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29682?token=_MWzqL9rEJv38_wt8YXFlRJV1Y5BO7wByh4yyh94SA1s-EThqstOYk7uFOic1kAiCy2uYNsiH3PcMZK9te6iTQ8" alt="First pending scenarios" title=""&gt; &lt;/p&gt;
+
+&lt;h2 id="users"&gt;Users&lt;/h2&gt;
+
+&lt;p&gt;The first 'Given' step sets up the initial state of the app.  We want a user to exist and also to be logged in.  In this example, we can use a fixture so that a user will be created before the tests run.  Then we can login that user using the login form.&lt;/p&gt;
+
+&lt;p&gt;First, create a new fixture file &lt;code&gt;/tests/cucumber/fixtures/user.js&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;( function () {
+
+  'use strict';
+
+  Meteor.methods({
+    addUser: function (opts) {
+      Meteor.users.remove({});
+      Accounts.createUser({
+        email: opts.email,
+        password: opts.password ? opts.password : "testtest"
+      });
+    }
+  });
+
+})();
+
+
+//tests/cucumber/fixtures/users.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note, before creating a user we first remove all the users, or 'clean' the users collection before the tests.&lt;/p&gt;
+
+&lt;p&gt;Also, note that this method will only be available on a Velocity mirror, so it will not ever affect other environments like production.&lt;/p&gt;
+
+&lt;p&gt;We want to call this method before any scenarios run, so we will use a 'before' hook. In '/features', make a new 'support' directory &amp;amp; file:  &lt;code&gt;/tests/cucumber/features/support/hooks.js&lt;/code&gt;.  This file will execute &lt;em&gt;before&lt;/em&gt; all the scenarios.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;(function () {
+
+  'use strict';
+
+  module.exports = function () {
+
+    this.Before(function (callback) {
+      console.log('running!');
+      this.server.call('addUser', {email: "bob@example.com"}).then(callback);
+    });
+
+  };
+
+})();
+
+
+// /tests/cucumber/features/support/hooks.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the logs, we see a scary result with a simple fix. &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29683?token=X5KzJXlJwnDCxTMXm0Jv3VcxSd6Y_EKTL9y8TI20cNJuMa2Sc-vhcffvM_NKB65T64sZKozV4tYS2U879pUfrkE" alt="Before adding accounts package" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Our hook fired, the app called our 'addUser' method, but we haven't added the 'accounts' package.&lt;/p&gt;
+
+&lt;p&gt;In the terminal, add these packages:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ meteor add accounts-ui
+$ meteor add accounts-password
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, back in the cucumber logs, we see that the hook has fired without error and we see our first step is 'pending'&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29685?token=LMtU8jkUiF9mdroNvDh_2wYGC_u952wbJ2BB0ATdRhXMsyG6P7Ps6j9wqdS03Bo_iLupGXOhzc8atJ-zI2CAcK4" alt="pending after adding accounts" title=""&gt;  &lt;/p&gt;
+
+&lt;h2 id="loggingin"&gt;Logging in&lt;/h2&gt;
+
+&lt;p&gt;Let's build out the step 'Given I am logged in':&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;this.Given(/^I am logged in$/, function (callback) {  
+      this.client.
+      url(process.env.ROOT_URL).
+      waitForExist('body *').
+      waitForVisible('body *').
+      click('#login-sign-in-link').
+      setValue('#login-email', 'bob@example.com').
+      setValue('#login-password', 'testtest').
+      click('#login-buttons-password').
+      call(callback);
+
+});
+
+// /tests/cucumber/features/step_definitions/create_widget_steps.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This will fail.  &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29687?token=qdXpmEmtpUCmM3j5GNXX8dY9qZEEaNbIAE3vpHU6fPOfyDIPky8EX5gwBlNE0IEBzitEX1cXYMjRUGr5Mb035RM" alt="first failing test" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;We have not included any login links in our template, so there are no login fields and no 'Sign In' button.&lt;/p&gt;
+
+&lt;p&gt;Fix thusly: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;body&amp;gt;  
+  &amp;lt;h1&amp;gt;Welcome to Meteor!&amp;lt;/h1&amp;gt;
+  {{&amp;gt; loginButtons}}
+  {{&amp;gt; hello}}
+&amp;lt;/body&amp;gt;
+
+&amp;lt;!-- cuke-tut.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, Cucumber can show the login form, enter an email and password, and click 'Sign In'.  In subsequent steps, the user should be logged in.  We can proceed to testing the 'create widget' form.  &lt;/p&gt;
+
+&lt;p&gt;In the HTML, we anticipate a form with a 'name' input.  Fill in the Cucumber step: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    this.When(/^I fill in the name with "([^"]*)"$/, function (arg1, callback) {
+      this.client.
+      setValue('#name', 'Alpha').
+      call(callback);
+    });
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And notice our failing test, guiding us to the write code: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29689?token=8LH422Cyd2F3u9z1pA3NgwEvS3LRzsfrivXXHkq-i3vpfrTgE_PT99HwfHy38Aor1Ux8T_xfIefTvK1mNDoa0lU" alt="cannot find name input" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Let's edit the HTML template: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;template name="hello"&amp;gt;  
+  &amp;lt;div&amp;gt;
+    {{#if currentUser}}
+      &amp;lt;form id="createWidgetForm"&amp;gt;
+        &amp;lt;input type="text" name="name" id="name" /&amp;gt;
+        &amp;lt;button type="submit" name="submit" id="createWidget"&amp;gt;Create Widget&amp;lt;/button&amp;gt;
+      &amp;lt;/form&amp;gt;
+    {{/if}}
+  &amp;lt;/div&amp;gt;
+&amp;lt;/template&amp;gt;
+
+
+&amp;lt;!-- cuke-tut.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The tests pass.  Move on to the next step: clicking the 'create widget' button: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    this.When(/^I click the button "([^"]*)"$/, function (arg1, callback) {
+      this.client.
+      click('#createWidget').
+      call(callback);
+    });
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, the logs indicate everything is passing, except the crucial last step asserting that something useful actually happens. &lt;/p&gt;
+
+&lt;p&gt;Let's build that step, watch it fail, and get it passing with real code. The step: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;    this.Then(/^I should see a widget named "([^"]*)"$/, function (arg1, callback) {
+      this.client.
+      waitForExist('.widget-name', 100).
+      getText('.widget-name').then( function (names) {
+        assert.equal(names[0], 'Alpha'
+      }).
+      call(callback);
+    });
+
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here, we use 'assert', and so we must require it at the top of the file, on line 1: &lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var assert = require('assert');
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After including this step, the logs show us the expected failure: &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29690?token=fXTDF5uySn3fw4CA03zE1Zk1gnGezflkjus9tvZhf4Jq2h9bHAib4zsWIfglPQvb02_9vGaEbCDyQgObHM2O4pM" alt="cannot find the new widget" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Now, let's write some Meteor code that inserts this widget and shows its name in a paragraph with the class "widget-name".  Replace &lt;code&gt;cuke-tut.js&lt;/code&gt; with this:  &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;WidgetsCollection = new Mongo.Collection('widgets');
+
+if (Meteor.isClient) {  
+  Template.hello.events({
+    'click button#createWidget': function () {
+      var name = $('input#name').val();
+
+      WidgetsCollection.insert({
+        name: name
+      });
+    }
+  });
+
+  Template.hello.helpers({
+    widgets: function () {
+      return WidgetsCollection.find();
+    }
+  });
+}
+
+// cuke-tut.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here, we create the WidgetsCollection and handle the 'create widget' event.  Now, when we click the button, the app will insert a document into the WidgetsCollection.  Lastly, the helper grabs all documents from that WidgetsCollection and hands them to the template.&lt;/p&gt;
+
+&lt;p&gt;The HTML template can now iterate through all the widgets.  &lt;code&gt;cuke-tut.html&lt;/code&gt; should look like this, : &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;head&amp;gt;  
+  &amp;lt;title&amp;gt;cuke-tut&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+
+  &amp;lt;body&amp;gt;
+    &amp;lt;h1&amp;gt;Welcome to Meteor!&amp;lt;/h1&amp;gt;
+    {{&amp;gt; loginButtons}}
+    {{&amp;gt; hello}}
+  &amp;lt;/body&amp;gt;
+
+&amp;lt;template name="hello"&amp;gt;  
+  &amp;lt;div&amp;gt;
+    {{#if currentUser}}
+      &amp;lt;form id="createWidgetForm"&amp;gt;
+        &amp;lt;input type="text" name="name" id="name" /&amp;gt;
+        &amp;lt;button type="submit" name="submit" id="createWidget"&amp;gt;Create Widget&amp;lt;/button&amp;gt;
+      &amp;lt;/form&amp;gt;
+    {{/if}}
+    {{#each widgets}}
+      &amp;lt;p class="widget-name"&amp;gt;
+        {{name}}
+      &amp;lt;/p&amp;gt;
+    {{/each}}
+  &amp;lt;/div&amp;gt;
+&amp;lt;/template&amp;gt;
+
+
+&amp;lt;!-- cuke-tut.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And, looking at the Cucumber logs, voila!  All green.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29692?token=71FjihGFRyiLHRQk6aFzsZKJEDQRFjZGBAJtDK64WLMFRLWfS7nl-R-Y3j8JMP6TECslHIv5QF1AJrO8cQzVfFA" alt="all green" title=""&gt; &lt;/p&gt;
+
+&lt;h1 id="summary"&gt;Summary&lt;/h1&gt;
+
+&lt;p&gt;Those widgets didn't make themselves.  They needed cold, hard code to get from your click to the database and then the screen.  But we didn't sling out Meteor code and call it a day.  Instead, we first created plain english descriptions of the behavior we wanted, and then defined that behavior with JavaScript tests.  Those tests failed, so we added application code until they passed.&lt;/p&gt;
+
+&lt;p&gt;Now, when we add more features, we will see if our new code breaks any of our old code.&lt;/p&gt;
+
+&lt;p&gt;Velocity and meteor-cucumber are under development, and things seem to improve steadily.  Cheers, this is terrific for Meteor.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/mhurwi/cucumber-meteor-tutorial"&gt;See this tutorial code on github&lt;/a&gt;&lt;/p&gt;</content:encoded></item><item><title>Test-Driven Meteor: A Very Basic Tutorial</title><description>&lt;p&gt;Welcome to your first day at the Meteor Widget factory!  Today we will get started building our widget app.  Specs include clicking a button and seeing "New Widget!" appear on the screen.  Most importantly, we will develop this feature &lt;strong&gt;test-first&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;We will use just a few tools: Meteor, Velocity &amp;amp;&lt;/p&gt;</description><link>http://localhost:2368/test-driven-meteor-very-basic-tutorial/</link><guid isPermaLink="false">c25b1c6a-7d4e-40c5-bcbd-62a5fd2d0536</guid><dc:creator>Mark Hurwitz</dc:creator><pubDate>Wed, 20 May 2015 12:45:00 GMT</pubDate><content:encoded>&lt;p&gt;Welcome to your first day at the Meteor Widget factory!  Today we will get started building our widget app.  Specs include clicking a button and seeing "New Widget!" appear on the screen.  Most importantly, we will develop this feature &lt;strong&gt;test-first&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;We will use just a few tools: Meteor, Velocity &amp;amp; Jasmine.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/mhurwi/meteor-tdd-tutorial"&gt;See the code at Github&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Let's start by exploring the Velocity test framework with a simple button-clicking test.&lt;/p&gt;
+
+&lt;h1 id="createanewapp"&gt;Create a new app&lt;/h1&gt;
+
+&lt;p&gt;Let's create our app and change into the new directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-bash"&gt;meteor create widget_maker  
+cd widget_maker  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We are going to keep this app as simple as possible.  We will wait to add features like routing and user logins.  But we will add 2 packages, one for style and one for testing.&lt;/p&gt;
+
+&lt;p&gt;First package: bootstrap css.  So we can prototype with some style.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-bash"&gt;meteor add twbs:bootstrap  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next, we will add the testing package&lt;/p&gt;
+
+&lt;h1 id="aboutvelocity"&gt;About Velocity&lt;/h1&gt;
+
+&lt;p&gt;There is much you will want to know about Velocity, in addition to how it works. It is &lt;em&gt;not&lt;/em&gt; developed by the Meteor Development Group and it is &lt;em&gt;not&lt;/em&gt; the &lt;em&gt;only&lt;/em&gt; test framework available. But it is the most popular and, like most open source packages, community members are building it, for free, in their own time. Learn more at their github repo: (&lt;a href="https://github.com/meteor-velocity/velocity"&gt;https://github.com/meteor-velocity/velocity&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;*Note: * As of this writing, the current release of Velocity is 0.6.3.&lt;/p&gt;
+
+&lt;p&gt;One key point: Velocity &lt;em&gt;runs&lt;/em&gt; your tests, but it is &lt;em&gt;not&lt;/em&gt; itself the tests.  It runs Meteor on a separate server, executes fancy things like mirroring in the background, and allows your tests to run against a real, live Meteor application, that is separate from the instance that you typically interact with.&lt;/p&gt;
+
+&lt;h1 id="addjasmine"&gt;Add Jasmine&lt;/h1&gt;
+
+&lt;p&gt;You will write tests using your chosen JavaScript testing framework. For this tutorial, we will use Jasmine.&lt;/p&gt;
+
+&lt;p&gt;Other options include Mocha, Jasmine and Cucumber.  Perhaps someday we will hash out the differences, weigh the pros and cons, and make a more deliberate choice. But, most people agree: Jasmine works great when you know how to use it.&lt;/p&gt;
+
+&lt;p&gt;Let's learn how to use it.  Start by adding the package:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-bash"&gt;meteor add sanjo:jasmine  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This packages adds Velocity, among other dependencies, but it does &lt;em&gt;not&lt;/em&gt; add the 'test reporter', the thing that actually displays test results on the screen.  So we add another package:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-bash"&gt;meteor add velocity:html-reporter  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Maybe someday you will want to choose a different reporter; there are several. We might want to keep our tests confined to our terminal using the &lt;a href="https://github.com/meteor-velocity/console-reporter/"&gt;console-reporter&lt;/a&gt;.  But people commonly start with the HTML reporter.  We can see it working when we start our app:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-bash"&gt;meteor  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Open your browser and go to (&lt;a href="http://localhost:3000"&gt;http://localhost:3000&lt;/a&gt;).  You should see this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29203?token=DFE912ksy9ceqDjWoeAsIXmPQWcWPT17MpC0e6B90Q2YaJGm8mP-WSyqLKfIW47hOa8BdCJiZZ2BTRQtGlrp4XY" alt="Velocity on first run" title=""&gt; &lt;/p&gt;
+
+&lt;h1 id="addsampletests"&gt;Add sample tests&lt;/h1&gt;
+
+&lt;p&gt;0 tests passed because we have written 0 tests.  But Velocity offers us a unique feature: It will add sample tests for us.  Click the button 'add jasmine-client-integration tests'.  Wait a few moments.  Velocity will create some new files:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29204?token=4BjXziOqwx6V8BR4E7OyIvpzAAP-gWArRWYk5lNWpmSOabXAy_4wR1D54i7kyiYD1H1m0TiQ-fbxARO0Gf5kA5Y" alt="jasmine&lt;em&gt;sample&lt;/em&gt;tests.png" title=""&gt; &lt;/p&gt;
+
+&lt;h1 id="addourowntest"&gt;Add our own test&lt;/h1&gt;
+
+&lt;p&gt;Let's wipe out those samples and write our &lt;em&gt;own&lt;/em&gt; test.  When we ran 'meteor create', it gave us a tiny little app for free, with a button.  Let's test that button.&lt;/p&gt;
+
+&lt;p&gt;Delete the file &lt;code&gt;tests/jasmine/client/integration/sample/spec/PlayerSpec.js&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Make a new file: &lt;code&gt;tests/jasmine/client/integration/sample/spec/buttonSpec.js&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;And start with this code:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;describe('clicking the button', function () {  
+  // reset the counter before each test
+  beforeEach(function() {
+    Session.set('counter', 0);
+  });
+
+  it('should show how many times the button was pressed', function () {
+    // Get the text we are testing
+    var text = $('p#buttonText').text();
+
+    // click the button
+    $('button').click();
+
+    // assert that we see 'You've pressed the button times.'
+    expect(text).toEqual("You've pressed the button 1 times.");
+  });
+});
+
+// tests/jasmine/client/integration/sample/spec/buttonSpec.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And you should see the results after you save:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29205?token=KMQR66TpfXlptd8551TZJsmNA2ZI6lOHa0P0am8p8lgs297MrNLDx9bnlE7X33IKkhGG4vyRR45VhwwBW1_Un50" alt="first&lt;em&gt;passing&lt;/em&gt;test.png" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;In our browser, we see that our app is running on &lt;code&gt;localhost:3000&lt;/code&gt;, and the text still says "You've pressed the button 0 times."  That's a &lt;em&gt;good thing&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Velocity runs our test app separately from our development app. We do not want our test app to interfere with our development app.  In fact, we want our test app to run in a completely separate &lt;strong&gt;test&lt;/strong&gt; environment.  This becomes especially important when we start making collections and saving data to the database.  In the test environment, we will create &amp;amp; delete documents willy-nilly, again and again. We do &lt;em&gt;not&lt;/em&gt; want to touch our development database &lt;em&gt;at all&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h1 id="whatwevedone"&gt;What we've done&lt;/h1&gt;
+
+&lt;p&gt;In this first step, we created a new app, added Velocity and Jasmine, and created a simple test. We ran the sample 'button-clicking' app that Meteor gave us, and tested that clicking the button shows the correct text.  &lt;/p&gt;
+
+&lt;p&gt;Next, let's delete all this code and get started on our &lt;em&gt;real&lt;/em&gt; app.&lt;/p&gt;
+
+&lt;h1 id="testfirstfeature"&gt;Test first feature&lt;/h1&gt;
+
+&lt;p&gt;This app is all about making widgets.  We will put off discussing the nature and value of widgets. We won't even persist our widget to the database until the next lesson. For now, we know of one feature: When we click a button, we want to see a new widget represented by a div on the page saying 'New Widget'.&lt;/p&gt;
+
+&lt;p&gt;First, wipe out the boilerplate code in &lt;code&gt;widget_maker.js&lt;/code&gt;.  The test we wrote previously will fail.  Delete the entire directory &lt;code&gt;tests/jasmine/client/integration/sample/&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Create a new directory in it's place: &lt;code&gt;/tests/jasmine/client/integration/widgets/&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;and in that folder, start a new file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;describe('creating a widget', function () {
+
+  beforeEach(function() {
+  });
+
+  it('clicking the button adds a div', function () {
+    // test here
+  });
+});
+// /tests/jasmine/client/integration/widgets/widgetSpec.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In &lt;code&gt;widget_maker.html&lt;/code&gt;, clean up the HTML.  We start with a single template, called within the &lt;code&gt;body&lt;/code&gt; tag:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;head&amp;gt;  
+  &amp;lt;title&amp;gt;Widget Maker&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+
+&amp;lt;body&amp;gt;  
+  {{&amp;gt; widgets }}
+&amp;lt;/body&amp;gt;
+
+&amp;lt;template name="widgets"&amp;gt;  
+  &amp;lt;h1&amp;gt;Your Widgets&amp;lt;/h1&amp;gt;
+&amp;lt;/template&amp;gt;  
+&amp;lt;!-- widget_maker.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And also, clear out &lt;code&gt;widget_maker.js&lt;/code&gt;.  We will start fresh with a single 'widgets' template:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;if (Meteor.isClient) {  
+  Template.widgets.events({});  
+  Template.widgets.helpers({});
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And now, back to the test.  We want to click a button, and we want that event to create a new div on the page.  We don't actually &lt;em&gt;have&lt;/em&gt; the button, or any other code, so after we write the test, Velocity will run it and show us that it failed.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code&gt;widgetSpec.js&lt;/code&gt;, we add to our test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;it('clicking the button adds a div', function () {  
+  // click the button
+  $('button#createWidget').click();
+
+  // gather the newly created divs
+  $newDivs = $('div.widget');
+
+  // assert the number of new divs
+  expect($newDivs.length).toEqual(1);
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And in our browser, we see our failing test:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29206?token=awPyalabDJ_4x2Y1bG1zF5Fx8BSMHvNSYgNggAuFXay5jYBME_KzFEJp5gA3_Xp6bNTMhtGSFqsPRF2xj1KDU9M" alt="first&lt;em&gt;failing&lt;/em&gt;test.png" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;You might get fatigued scanning the stack trace.  Most of those lines refer to the innards of the Jasmine package; only one line indicates where our actual test failed:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;at Object.&amp;lt;anonymous&amp;gt; (http://localhost:60492/tests/jasmine/client/integration/widgets/widgetSpec.js?ac0ef60468124c2c3c2e31aa29a0f62dd0059c60:14:29)  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Something else is missing: we tried to click a non-existent button but the test did &lt;em&gt;not&lt;/em&gt; tell us, "the button you tried to click does not exist." &lt;/p&gt;
+
+&lt;p&gt;We understand, though. That's our starting place.  Let's add the button:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-html"&gt;&amp;lt;template name="widgets"&amp;gt;  
+  &amp;lt;h1&amp;gt;Your Widgets&amp;lt;/h1&amp;gt;
+  &amp;lt;button id="createWidget" class="btn btn-success"&amp;gt;Create a New Widget&amp;lt;/button&amp;gt;
+&amp;lt;/template&amp;gt;
+
+&amp;lt;!-- widget_maker.html --&amp;gt;  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And next, let's handle the event: clicking that button should add a widget.  This is our first opportunity to write actual code and we can do anything we want so long as it makes our test pass.  For the purposes of learning, we will start with a non-Meteor style, using jQuery to append the div.  Afterwards, we will refactor.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;Template.widgets.events({  
+  'click button#createWidget': function (event, template) {
+    $("body").append("&amp;lt;div class='widget'&amp;gt;New Widget&amp;lt;/div&amp;gt;");
+  }
+});
+
+// widget_maker.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Back in the browser, our test passes. Again, notice that we did not click the button ourselves, and we don't see any 'New Widget' divs.  But, Velocity ran the app in a separate instance, clicked the button, and told us the good news in green.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29207?token=pqu8AJQy0iwe4KrIHmWYx9Mj7sdZ85SP2DilizIySRCZ4mtddX4A0EDx69ojvl1IRNLDIPDvdNxyhHM_49-ONT4" alt="first&lt;em&gt;test&lt;/em&gt;of&lt;em&gt;the&lt;/em&gt;new&lt;em&gt;widget&lt;/em&gt;button.png" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Our test ensures clicking the button does indeed add a div to to body. But-- we haven't actually &lt;em&gt;created&lt;/em&gt; a widget.  More importantly, we are working with Meteor and we do not want to do things like append divs using jQuery.  We would rather leverage Meteor's reactivity.  &lt;/p&gt;
+
+&lt;p&gt;Clicking that widget-creating button should actually create a brand new widget, and the template should react accordingly.&lt;/p&gt;
+
+&lt;p&gt;We need to refactor.  Test driven development &lt;em&gt;demands&lt;/em&gt; that we refactor, so that we end up with the best possible code, not just our first grasp at whatever causes the test to pass.&lt;/p&gt;
+
+&lt;p&gt;The test will now tell us, whatever happens, whether clicking that button causes 'New Widget' to appear.  &lt;/p&gt;
+
+&lt;p&gt;In the next part, we will refactor our code so that clicking the button will insert a new widget into the Widgets collection.&lt;/p&gt;
+
+&lt;h1 id="widgetscollection"&gt;Widgets Collection&lt;/h1&gt;
+
+&lt;p&gt;We want to &lt;em&gt;create&lt;/em&gt; widgets, not just append text to the HTML.  After we click that button, we want to &lt;em&gt;persist&lt;/em&gt; a widget to the database.  &lt;/p&gt;
+
+&lt;p&gt;But we will let the tests guide us. For instance, we can write a test that, after clicking the button, the WidgetsCollection should include a new document.  Notice, we have not yet created the WidgetsCollection.  As an exercise, we will write the tests first and follow the trail from red to green.&lt;/p&gt;
+
+&lt;h1 id="redmeanssuccess"&gt;Red means Success&lt;/h1&gt;
+
+&lt;p&gt;In this test, we will start by asserting that we start with 0 documents in the WidgetsCollection.  &lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;  it('clicking the button saves a new Widget', function () {
+    // First, check that we have 0 documents
+    var widget = WidgetsCollection.findOne({});
+
+    expect(widget).toBe(undefined);
+  )};
+
+  // /tests/jasmine/client/integration/widgets/widgetSpec.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The test has successfully notified us that we need to define the WidgetsCollection.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29208?token=yzc4NT7IgPuvlAmH0nkOWeASjemdck-NcsDiK8obExz0x7Gsi8vI6__A8fggoSOW7XuEcqslcE8w3ataDXvW3xo" alt="widets&lt;em&gt;collection&lt;/em&gt;not_defined.png" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;We will add the WidgetsCollection code and see what the test tells us next.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;WidgetsCollection = new Mongo.Collection('widgets');
+
+// widget_maker.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Yep, the test has changed to passing!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29209?token=UBdtJi8JjnAjlBEpYoVBOXlLrWMvajVWhDCiOv1NofUsYYJgXt0bLwhISW4Lu-BjLzfgTMLViUegZTeV8KzI284" alt="widget&lt;em&gt;collection&lt;/em&gt;now_exists.png" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;We can assure ourselves that this test is actually working but causing it to fail again, this time testing that we get 1 document instead of 0.  Change 1 line in the test:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;  it('clicking the button saves a new Widget', function () {
+    // First, check that we have 0 documents
+    var widget = WidgetsCollection.findOne({});
+
+    // Test that, instead of 'undefined', we get an object of some sort. This should fail.
+    expect(!!widget).toBe(true);
+  )};
+
+  // /tests/jasmine/client/integration/widgets/widgetSpec.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Good-- the test fails.  We know that it's querying the WidgetsCollection and not finding any documents, as we expect. We can move on to clicking the button and actually creating a widget.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: Revert that 1 line, so it expects 0 documents:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;// First, check that we have 0 documents
+  var widget = WidgetsCollection.findOne({});
+
+  expect(widget).toBe(undefined);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id="createthewidget"&gt;Create the widget&lt;/h1&gt;
+
+&lt;p&gt;Add some lines to that test: clicking the button should produce a new widget, size 'medium'.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;it('clicking the button saves a new Widget', function () {  
+  // First, check that we have 0 documents
+  var widget = WidgetsCollection.findOne({});
+  expect( widget ).toBe(undefined);
+
+  // click the button
+  $('button#createWidget').click();
+
+  // This time, we should have a widget, and its size should be 'medium'
+  var widget = WidgetsCollection.findOne({});
+  expect( widget.size ).toBe("medium");
+});
+
+// /tests/jasmine/client/integration/widgets/widgetSpec.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The failing test tells us we did not get a document, we only got 'undefined', and 'undefined' doesn't have a size.  &lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29210?token=PPGiQIOytyeq4IonRK9cCvSxZtqn3JnzPsuxwuN7gfVhsWupSJSYNej719aQ9e_T8H-INvQHtSIPKyMoZCgFQzI" alt="undefined&lt;em&gt;has&lt;/em&gt;no_size.png" title=""&gt; &lt;/p&gt;
+
+&lt;p&gt;Time to get back into our application and make the test pass.  Clicking the button should actually insert a document.  We could use a Meteor method, but let's stay simple: In &lt;code&gt;Template.widgets.events&lt;/code&gt;, in the 'click button' event, we will insert a document with &lt;code&gt;size: 'medium'&lt;/code&gt; into the widgets collection.&lt;/p&gt;
+
+&lt;p&gt;But after adding this code, we will encounter a tricky testing gotcha.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;Template.widgets.events({  
+  'click button#createWidget': function (event, template) {
+    WidgetsCollection.insert({
+      size: "medium"
+    });
+
+    $("body").append("&amp;lt;div class='widget'&amp;gt;New Widget&amp;lt;/div&amp;gt;");
+  }
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Look at the failing test and guess what happened:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29211?token=4OKmP983O-96OEu4it9Lfi1Arq_bOL9WS2DG2kinZ5SQhBTYRy3zZaIeUA1JZk1fvtxVPb4hsog18ehC0oymap8" alt="need&lt;em&gt;to&lt;/em&gt;clear_database.png" title=""&gt; &lt;/p&gt;
+
+&lt;h1 id="managingthetestdatabase"&gt;Managing the test database&lt;/h1&gt;
+
+&lt;p&gt;The test says that it found an actual document, but it was expecting to find nothing at all.  Here's the thing about testing: sometimes you end up testing the tests instead of the application.  These tests are running in their own magical world where anything goes, so long as we will it.  And if we don't will it, it might go awry.  &lt;/p&gt;
+
+&lt;p&gt;In this world, we want to start every test with an empty database and then see if our code causes the changes we expect.  &lt;/p&gt;
+
+&lt;p&gt;But here, this test inserts a new document into the database every time it runs. Then, the next time it runs, it fails, because it expects to find nothing, but instead it finds the document from the previous run.&lt;/p&gt;
+
+&lt;p&gt;If we were building a Ruby on Rails application, we might take the time to implement 'DatabaseCleaner', a package to help manage this problem.  &lt;a href="https://github.com/DatabaseCleaner/database_cleaner"&gt;Scan the readme for extra credit.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In Node, we can explore similar packages: &lt;a href="https://github.com/emerleite/node-database-cleaner"&gt;node-database-cleaner &lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Keeping a kosher test environment can be tricky.  Specifically with the test database, different people will pursue different paths, maybe using fixtures or some other strategy, but in our case, we will remove all documents before running each test.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class="language-javascript"&gt;describe('creating a widget', function () {
+
+  beforeEach(function() {
+    WidgetsCollection.find().forEach( function (widget) {
+      WidgetsCollection.remove({_id: widget._id});
+    });
+  });
+
+  ...
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Another trick: we cannot use &lt;code&gt;WidgetsCollection.remove({})&lt;/code&gt; because we are using Meteor, and we are testing client-side code.  Meteor doesn't allow the client to remove documents willy-nilly, so we need to laboriously remove each document by id.  In our actual application, we won't be wiping the database.&lt;/p&gt;
+
+&lt;p&gt;But, here we are in the 'test' environment and we can establish whatever state of the app we want.  In the future, we may decide to seed the database with different widgets-- small, medium, and large.  But, for now, when the test runs against an empty database, our test passes.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29212?token=kmsAE1TwzsSvdxv9x-n4c5VBmjvUpmbSQkaO1FuHyNkbooshkTK-OHsHwzRC3zcQpmYXjbACX91oPWSuMPru8rI" alt="saves&lt;em&gt;a&lt;/em&gt;new&lt;em&gt;widget&lt;/em&gt;to&lt;em&gt;the&lt;/em&gt;db.png" title=""&gt; &lt;/p&gt;
+
+&lt;h1 id="testingbyhand"&gt;Testing by hand&lt;/h1&gt;
+
+&lt;p&gt;We can use our own two hands to manually test that, yes, in the browser, clicking the button saves a new widget.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://draftin.com:443/images/29213?token=TQCwDwOpzC9VLgBppNtqR4aVAK9-C9qJ-oEc_8TaBGEE1oh6VPnRmSKMuMrxc6l_gSMvq5v7ZC56rhW4nBUIRHc" alt="manually&lt;em&gt;click&lt;/em&gt;and&lt;em&gt;test&lt;/em&gt;for&lt;em&gt;new&lt;/em&gt;widget.png" title=""&gt; &lt;/p&gt;
+
+&lt;h1 id="nextsteps"&gt;Next Steps&lt;/h1&gt;
+
+&lt;p&gt;First, we wrote a test that failed and then the test told us why it failed: some code was missing or incorrect.  Next, we added some code and the test passed.  Last, we refactored our code, checking to see the test stayed green while we improved the app.  As we went, we managed our test environment.&lt;/p&gt;
+
+&lt;p&gt;What about next steps? Users might want to select 'small', 'medium' or 'large'. This same process can guide us: &lt;/p&gt;
+
+&lt;p&gt;First we write a test: &lt;code&gt;After selecting 'small' and clicking the button, we get a 'small widget'&lt;/code&gt;.  That test fails, so we add the select box and the new event handler.  The test passes.  Then, we refactor to improve the UX and add more options like &lt;code&gt;color: 'blue'&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h1 id="summary"&gt;Summary&lt;/h1&gt;
+
+&lt;p&gt;Please note: if you are like me, you will find that testing Meteor apps is &lt;em&gt;challenging&lt;/em&gt;.  Discovering best practices is &lt;em&gt;difficult&lt;/em&gt;.  Developing your test suite will take &lt;em&gt;time&lt;/em&gt;.  &lt;/p&gt;
+
+&lt;p&gt;It might even make sense to practice these techniques separately from your app, while you wait for the Meteor testing ecosystem to mature.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;But&lt;/em&gt;, keep your eye on the ball.  Eventually, you might realize great profits from your tests. As your widget application becomes increasingly popular and you add more features, the tests can guide your code and you will feel confident that everything works.&lt;/p&gt;</content:encoded></item></channel></rss>

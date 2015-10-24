@@ -1,0 +1,602 @@
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>A Basic Cucumber Meteor Tutorial</title>
+    <meta name="description" content="">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="http://localhost:2368/assets/favicon.png?v=d90acbffcb">
+
+    <!--[if lt IE 9]>
+    <script src="http://s3.amazonaws.com/nwapi/nwmatcher/nwmatcher-1.2.5-min.js"></script>
+    <script type="text/javascript" src="/assets/js/html5shiv.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="/assets/js/css3-mediaqueries.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="/assets/js/selectivizr-min.js?v=d90acbffcb"></script>
+    <![endif]-->
+
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700%7CRoboto+Condensed%7CPoly:400,400italic" rel="stylesheet" type="text/css">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/css/normalize.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/ghostship.min.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prettify/sunburst.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/style.css?v=d90acbffcb">
+
+    <link rel="canonical" href="index.html">
+    
+    <meta property="og:site_name" content="Mhurwi">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="A Basic Cucumber Meteor Tutorial">
+    <meta property="og:description" content="I have hit my head against several walls as I endeavored to start testing my Meteor applications.  Recently, one of the main Velocity authors pushed important updates to his meteor-cucumber package. Before this update, I never bothered with Cucumber. But...">
+    <meta property="og:url" content="http://localhost:2368/a-basic-cucumber-meteor-tutorial/">
+    <meta property="article:published_time" content="2015-06-09T16:12:00.000Z">
+    <meta property="article:modified_time" content="2015-10-24T14:35:05.142Z">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="A Basic Cucumber Meteor Tutorial">
+    <meta name="twitter:description" content="I have hit my head against several walls as I endeavored to start testing my Meteor applications.  Recently, one of the main Velocity authors pushed important updates to his meteor-cucumber package. Before this update, I never bothered with Cucumber. But...">
+    <meta name="twitter:url" content="http://localhost:2368/a-basic-cucumber-meteor-tutorial/">
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Mhurwi",
+    "author": {
+        "@type": "Person",
+        "name": "Mark Hurwitz",
+        "image": "//www.gravatar.com/avatar/9d7ef290cb87ca79dd8ea7879c465dfb?s=250&d=mm&r=x",
+        "url": "http://localhost:2368/author/mark",
+        "sameAs": null,
+        "description": null
+    },
+    "headline": "A Basic Cucumber Meteor Tutorial",
+    "url": "http://localhost:2368/a-basic-cucumber-meteor-tutorial/",
+    "datePublished": "2015-06-09T16:12:00.000Z",
+    "dateModified": "2015-10-24T14:35:05.142Z",
+    "description": "I have hit my head against several walls as I endeavored to start testing my Meteor applications.  Recently, one of the main Velocity authors pushed important updates to his meteor-cucumber package. Before this update, I never bothered with Cucumber. But..."
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.6">
+    <link rel="alternate" type="application/rss+xml" title="Mhurwi" href="../rss/index.html">
+    <script type="text/javascript">
+  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","group","track","ready","alias","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t){var e=document.createElement("script");e.type="text/javascript";e.async=!0;e.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};analytics.SNIPPET_VERSION="3.0.1";
+  analytics.load("lkntcnlzpd");
+  analytics.page()
+  }}();
+</script>
+</head>
+<body class="post-template">
+
+    <div id="blog_cover_willsong" class="bkg-cover"></div>
+
+    
+
+<header id="head_page_willsong">
+
+    <div id="head_content_willsong" class="boxed-cargo">
+
+        <h1 id="blog_title"><a href="../">Mhurwi</a></h1>
+
+        
+<nav id="menu_willsong">
+	<ul>
+		<li><a href="../about">About</a></li>
+		<li><a href="../projects">Projects</a></li>
+		<li><a href="../contact">Contact</a></li>
+	</ul>
+</nav>
+    </div>
+
+</header>
+<main id="content_willsong" role="main">
+
+    <div id="content_column_willsong" class="boxed-cargo">
+
+
+        <article class="post featured col-off2lg8-off2md8-off1sm10">
+
+            <header class="reading_post_header">
+                <h2 class="post_title">A Basic Cucumber Meteor Tutorial</h2>
+                <div class="post_meta">
+                    <span class="fa fa-clock-o"></span> <time datetime="2015-06-09">09 Jun 2015</time>
+                </div>
+            </header>
+
+            <p>I have hit my head against several walls as I endeavored to start testing my Meteor applications.  Recently, one of the main Velocity authors pushed important updates to his <a href="https://github.com/xolvio/meteor-cucumber">meteor-cucumber</a> package. Before this update, I never bothered with Cucumber. But I saw in this update an opportunity to finally learn Cucumber and improve my ability to test my Meteor apps.</p>
+
+<p>Follow this tutorial and see what I learned.  In it, we will build a Meteor application that creates widgets. Users will be required to log in before they can create a widget. They will enter a name, click a button and voila! A new widget appears.</p>
+
+<p><a href="https://github.com/mhurwi/cucumber-meteor-tutorial">See the code on github</a></p>
+
+<h2 id="firststeps">First Steps</h2>
+
+<p>First, create an app: </p>
+
+<pre><code>$ meteor create cuke-tut
+$ cd cuke-tut
+</code></pre>
+
+<p>And add the cucumber package: </p>
+
+<pre><code>$ meteor add xolvio:cucumber
+</code></pre>
+
+<p>Run the app: </p>
+
+<pre><code>$ meteor
+</code></pre>
+
+<p>Look at your server console.  You will see a message, "You can see the mirror logs at:" and a file path cucumber logs.  Here is a command using a relative file path.  From within the <code>cuke-tut/</code> tutorial, run this command:</p>
+
+<pre><code>tail -f ./.meteor/local/log/cucumber.log  
+</code></pre>
+
+<p>A 'mirror' is a separate instance of our meteor app, running on a different port and accessing a different database. The cucumber tests will run against a mirror and send output into this log file, which we will look at constantly.</p>
+
+<p>But first, open your browser, and look at the 'html-reporter'.  There is a button to create sample test files.  Click it and see the resulting failure.</p>
+
+<p><img src="https://draftin.com:443/images/29745?token=lyL-IopOU9R49NIIXFn43g_hZoYpv5PoRubpUeLN4m-TGSC0VwCSk-XQCt0djHzZb3RJRqchIGdYJCEc1oD4lZk" alt="Creating sample tests and seeing failure" title=""> </p>
+
+<h2 id="usingnpmdependencies">Using NPM dependencies.</h2>
+
+<p><em>updated June 11, 2015</em> </p>
+
+<p>The following error seems to be fixed as of xolvio:cucumber v0.9.0.  The package will run 'npm install' so we don't need to.  </p>
+
+<p>If you do see the following error in the logs, it's caused by an unresolved NPM dependency.</p>
+
+<p><img src="https://draftin.com:443/images/29693?token=4DspQG7bl4bLEK9fchKIsDE5PSnA_MpXK67LDIno3D6IpgOlE7B-Sv40vaPjJqq8frljK2vUiIQM9FKabY-wD8E" alt="no underscore" title=""> </p>
+
+<p>Look at the newly generated sample file, <code>/tests/cucumber/features/step_definitions/sample_steps.js</code>, line 6.</p>
+
+<pre><code class="language-javascript">// You can include npm dependencies for support files in tests/cucumber/package.json
+  var _ = require('underscore');
+
+// /tests/cucumber/features/step_definitions/sample_steps.js
+</code></pre>
+
+<p>If you are using an older version of xolvio:cucumber,  you need to manually install npm packages from within <code>/tests/cucumber</code>.  </p>
+
+<pre><code>$ cd tests/cucumber/
+$ npm install
+</code></pre>
+
+<p>We should now see that our tests run as expected, and we see an error in the logs: </p>
+
+<p><img src="https://draftin.com:443/images/29694?token=NCG_HmNQmYVaC4LQSVmS3vtEijbsc8JYhtHijBZV-j4a-TKDPueXNqU5NdZuVWusAV2zSQtpD8tx7KzHnWGXIZs" alt="intentional failure" title=""> </p>
+
+<p>And the last few lines of output: </p>
+
+<p><img src="https://draftin.com:443/images/29695?token=ckRWD-xCO9GEejk-77hJrCu_1Cn8DRgOnc4AYDhqsGsnRcOT_yTCN9rw2WEBkvp1Gb7QSHaYSrd1X4okGU1Ai-c" alt="failure output" title=""> </p>
+
+<p>Let's go to <code>tests/cucumber/features/sample.feature</code> and read the feature that fails: </p>
+
+<pre><code class="language-gherkin">Scenario: This scenario will not both on dev and on CI  
+    When I navigate to "/"
+    Then I should see the title "intentional failure"
+
+# /tests/cucumber/features/sample.feature
+</code></pre>
+
+<p>This file is written using the 'Gherkin' language.  It's actually a language that uses a few choice keywords like 'Feature', 'Background', 'Given', 'When', 'Then'. <a href="https://github.com/cucumber/cucumber/wiki/Gherkin">Read the wiki for extra credit.</a></p>
+
+<p>We see the problem on line 22.</p>
+
+<pre><code>Then I should see the title "intentional failure"  
+</code></pre>
+
+<p>Change that line to reflect the actual title, 'cuke-tut': </p>
+
+<pre><code>Then I should see the title "cuke-tut"  
+</code></pre>
+
+<p>Now, you can see in the logs, the test passes: </p>
+
+<p><img src="https://draftin.com:443/images/29679?token=rOMIAHz6QmpbVNF_auKl0gznbElfmQjnpmHQkRcTmE1DPIR-eZKurmbJ4zqKSQbiE7KmSZRKTUpjYTv7WiLLOt8" alt="First passing test" title=""> </p>
+
+<h2 id="tagsdev">Tags: @dev</h2>
+
+<p>Note, this file contains several scenarios but only the scenario tagged <code>@dev</code> is running.</p>
+
+<p>In cucumber, tags let us run specific scenarios in different situations.  This particular package adds the <code>@dev</code> and only scenarios with that tag will run.</p>
+
+<p>When we save a test file, the Meteor development environment will reload and only scenarios tagged <code>@dev</code> will run.  Remove that tag from the sample file to see what I mean. In the logs: </p>
+
+<p><img src="https://draftin.com:443/images/29680?token=rhNO7cfD_y4oWv9WQOW7-QT_NGCfJzBBy7dDBWuv0ppTyTyMgNXSm1WAUgeeTA7zJEJl12JZghOipHIjLMXabrA" alt="Need to use @dev tag" title=""> </p>
+
+<h2 id="tagsignore">Tags: @ignore</h2>
+
+<p>If you implement a continuous integration server, <code>@dev</code> does not apply.</p>
+
+<p>On your CI server, <em>all</em> the scenarios will run, with an exception: scenarios tagged <code>@ignore</code> will <em>not</em> run.  </p>
+
+<p>For now, we will be working in development only, so we rely on the <code>@dev</code> tag.</p>
+
+<h2 id="customtags">Custom tags</h2>
+
+<p>If you want to manually create new tags, you will need to tell the server.  You could add a tag <code>@foo</code> to a scenario, and tell the server to only run that scenario.  Run your server with this command: </p>
+
+<pre><code>CUCUMBER_TAGS='@foo' meteor  
+</code></pre>
+
+<h2 id="buildingourcreatewidgetfeature">Building our 'create widget' feature</h2>
+
+<p>In this app, when a logged-in user clicks the "Create Widget" button, they should be rewarded with a new widget.  We will develop this app BDD style. First, we will write Cucumber scenarios describing how we wish the app behaved and then we will create code so that the app actually does behave that way.  </p>
+
+<p>First, remove the <code>@dev</code> tag from the old, sample feature in <code>/tests/cucumber/features/sample.feature</code></p>
+
+<p>Next, create a new file, <code>/tests/cucumber/features/create_widget.feature</code>.</p>
+
+<p>Add this:</p>
+
+<pre><code class="language-gherkin">Feature: Creating a widget
+
+  As a user, so that I can create a new widget, I want to click a button and see my new widget.
+
+  @dev
+  Scenario: Clicking the 'create widget' button will create and show a widget
+    Given I am logged in
+    When I fill in the name with "Alpha"
+    And I click the button "Create Widget"
+    Then I should see a widget named "Alpha"
+
+# /tests/cucumber/features/create_widget.feature
+</code></pre>
+
+<p>Our new scenario is not backed by any 'step definitions'. Without step definitions, the tests don't actually <em>do</em> anything and they don't make any assertions.  View the logs: </p>
+
+<p><img src="https://draftin.com:443/images/29681?token=nrkvN6JSIXQQYKeYQBtzJZ-S8encO4_Q2BFM3EgUFonkvWG-1jrNjwYj045EzVuO_b7Ik26WxzOVRFQBrP9olzI" alt="Feature without step definitions" title=""> </p>
+
+<p>This means, we should create a new file and start defining these steps with JavaScript.  Create <code>/tests/cucumber/features/step_definitions/create_widget_steps.js</code> and follow the pattern:</p>
+
+<pre><code class="language-javascript">(function () {
+
+  'use strict';
+
+  module.exports = function () {
+
+    this.Given(/^I am logged in$/, function (callback) {
+      callback.pending();
+    });
+
+    this.When(/^I fill in the name with "([^"]*)"$/, function (arg1, callback) {
+      callback.pending();
+    });
+
+    this.When(/^I click the button "([^"]*)"$/, function (arg1, callback) {
+      callback.pending();
+    });
+
+    this.Then(/^I should see a widget named "([^"]*)"$/, function (arg1, callback) {
+      callback.pending();
+    });
+
+  }
+
+})();
+
+// /tests/cucumber/features/step_definitions/create_widget_steps.js
+</code></pre>
+
+<p>The logs show our pending scenarios.</p>
+
+<p><img src="https://draftin.com:443/images/29682?token=_MWzqL9rEJv38_wt8YXFlRJV1Y5BO7wByh4yyh94SA1s-EThqstOYk7uFOic1kAiCy2uYNsiH3PcMZK9te6iTQ8" alt="First pending scenarios" title=""> </p>
+
+<h2 id="users">Users</h2>
+
+<p>The first 'Given' step sets up the initial state of the app.  We want a user to exist and also to be logged in.  In this example, we can use a fixture so that a user will be created before the tests run.  Then we can login that user using the login form.</p>
+
+<p>First, create a new fixture file <code>/tests/cucumber/fixtures/user.js</code></p>
+
+<pre><code class="language-javascript">( function () {
+
+  'use strict';
+
+  Meteor.methods({
+    addUser: function (opts) {
+      Meteor.users.remove({});
+      Accounts.createUser({
+        email: opts.email,
+        password: opts.password ? opts.password : "testtest"
+      });
+    }
+  });
+
+})();
+
+
+//tests/cucumber/fixtures/users.js
+</code></pre>
+
+<p>Note, before creating a user we first remove all the users, or 'clean' the users collection before the tests.</p>
+
+<p>Also, note that this method will only be available on a Velocity mirror, so it will not ever affect other environments like production.</p>
+
+<p>We want to call this method before any scenarios run, so we will use a 'before' hook. In '/features', make a new 'support' directory &amp; file:  <code>/tests/cucumber/features/support/hooks.js</code>.  This file will execute <em>before</em> all the scenarios.</p>
+
+<pre><code class="language-javascript">(function () {
+
+  'use strict';
+
+  module.exports = function () {
+
+    this.Before(function (callback) {
+      console.log('running!');
+      this.server.call('addUser', {email: "bob@example.com"}).then(callback);
+    });
+
+  };
+
+})();
+
+
+// /tests/cucumber/features/support/hooks.js
+</code></pre>
+
+<p>In the logs, we see a scary result with a simple fix. </p>
+
+<p><img src="https://draftin.com:443/images/29683?token=X5KzJXlJwnDCxTMXm0Jv3VcxSd6Y_EKTL9y8TI20cNJuMa2Sc-vhcffvM_NKB65T64sZKozV4tYS2U879pUfrkE" alt="Before adding accounts package" title=""> </p>
+
+<p>Our hook fired, the app called our 'addUser' method, but we haven't added the 'accounts' package.</p>
+
+<p>In the terminal, add these packages:</p>
+
+<pre><code>$ meteor add accounts-ui
+$ meteor add accounts-password
+</code></pre>
+
+<p>Now, back in the cucumber logs, we see that the hook has fired without error and we see our first step is 'pending'</p>
+
+<p><img src="https://draftin.com:443/images/29685?token=LMtU8jkUiF9mdroNvDh_2wYGC_u952wbJ2BB0ATdRhXMsyG6P7Ps6j9wqdS03Bo_iLupGXOhzc8atJ-zI2CAcK4" alt="pending after adding accounts" title="">  </p>
+
+<h2 id="loggingin">Logging in</h2>
+
+<p>Let's build out the step 'Given I am logged in':</p>
+
+<pre><code class="language-javascript">this.Given(/^I am logged in$/, function (callback) {  
+      this.client.
+      url(process.env.ROOT_URL).
+      waitForExist('body *').
+      waitForVisible('body *').
+      click('#login-sign-in-link').
+      setValue('#login-email', 'bob@example.com').
+      setValue('#login-password', 'testtest').
+      click('#login-buttons-password').
+      call(callback);
+
+});
+
+// /tests/cucumber/features/step_definitions/create_widget_steps.js
+</code></pre>
+
+<p>This will fail.  </p>
+
+<p><img src="https://draftin.com:443/images/29687?token=qdXpmEmtpUCmM3j5GNXX8dY9qZEEaNbIAE3vpHU6fPOfyDIPky8EX5gwBlNE0IEBzitEX1cXYMjRUGr5Mb035RM" alt="first failing test" title=""> </p>
+
+<p>We have not included any login links in our template, so there are no login fields and no 'Sign In' button.</p>
+
+<p>Fix thusly: </p>
+
+<pre><code class="language-html">&lt;body&gt;  
+  &lt;h1&gt;Welcome to Meteor!&lt;/h1&gt;
+  {{&gt; loginButtons}}
+  {{&gt; hello}}
+&lt;/body&gt;
+
+&lt;!-- cuke-tut.html --&gt;  
+</code></pre>
+
+<p>Now, Cucumber can show the login form, enter an email and password, and click 'Sign In'.  In subsequent steps, the user should be logged in.  We can proceed to testing the 'create widget' form.  </p>
+
+<p>In the HTML, we anticipate a form with a 'name' input.  Fill in the Cucumber step: </p>
+
+<pre><code class="language-javascript">    this.When(/^I fill in the name with "([^"]*)"$/, function (arg1, callback) {
+      this.client.
+      setValue('#name', 'Alpha').
+      call(callback);
+    });
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+</code></pre>
+
+<p>And notice our failing test, guiding us to the write code: </p>
+
+<p><img src="https://draftin.com:443/images/29689?token=8LH422Cyd2F3u9z1pA3NgwEvS3LRzsfrivXXHkq-i3vpfrTgE_PT99HwfHy38Aor1Ux8T_xfIefTvK1mNDoa0lU" alt="cannot find name input" title=""> </p>
+
+<p>Let's edit the HTML template: </p>
+
+<pre><code class="language-html">&lt;template name="hello"&gt;  
+  &lt;div&gt;
+    {{#if currentUser}}
+      &lt;form id="createWidgetForm"&gt;
+        &lt;input type="text" name="name" id="name" /&gt;
+        &lt;button type="submit" name="submit" id="createWidget"&gt;Create Widget&lt;/button&gt;
+      &lt;/form&gt;
+    {{/if}}
+  &lt;/div&gt;
+&lt;/template&gt;
+
+
+&lt;!-- cuke-tut.html --&gt;  
+</code></pre>
+
+<p>The tests pass.  Move on to the next step: clicking the 'create widget' button: </p>
+
+<pre><code class="language-javascript">    this.When(/^I click the button "([^"]*)"$/, function (arg1, callback) {
+      this.client.
+      click('#createWidget').
+      call(callback);
+    });
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+</code></pre>
+
+<p>Now, the logs indicate everything is passing, except the crucial last step asserting that something useful actually happens. </p>
+
+<p>Let's build that step, watch it fail, and get it passing with real code. The step: </p>
+
+<pre><code class="language-javascript">    this.Then(/^I should see a widget named "([^"]*)"$/, function (arg1, callback) {
+      this.client.
+      waitForExist('.widget-name', 100).
+      getText('.widget-name').then( function (names) {
+        assert.equal(names[0], 'Alpha'
+      }).
+      call(callback);
+    });
+
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+</code></pre>
+
+<p>Here, we use 'assert', and so we must require it at the top of the file, on line 1: </p>
+
+<pre><code>var assert = require('assert');
+
+// /tests/cucumber/features/step_definitions/create_widget.js
+</code></pre>
+
+<p>After including this step, the logs show us the expected failure: </p>
+
+<p><img src="https://draftin.com:443/images/29690?token=fXTDF5uySn3fw4CA03zE1Zk1gnGezflkjus9tvZhf4Jq2h9bHAib4zsWIfglPQvb02_9vGaEbCDyQgObHM2O4pM" alt="cannot find the new widget" title=""> </p>
+
+<p>Now, let's write some Meteor code that inserts this widget and shows its name in a paragraph with the class "widget-name".  Replace <code>cuke-tut.js</code> with this:  </p>
+
+<pre><code class="language-javascript">WidgetsCollection = new Mongo.Collection('widgets');
+
+if (Meteor.isClient) {  
+  Template.hello.events({
+    'click button#createWidget': function () {
+      var name = $('input#name').val();
+
+      WidgetsCollection.insert({
+        name: name
+      });
+    }
+  });
+
+  Template.hello.helpers({
+    widgets: function () {
+      return WidgetsCollection.find();
+    }
+  });
+}
+
+// cuke-tut.js
+</code></pre>
+
+<p>Here, we create the WidgetsCollection and handle the 'create widget' event.  Now, when we click the button, the app will insert a document into the WidgetsCollection.  Lastly, the helper grabs all documents from that WidgetsCollection and hands them to the template.</p>
+
+<p>The HTML template can now iterate through all the widgets.  <code>cuke-tut.html</code> should look like this, : </p>
+
+<pre><code class="language-html">&lt;head&gt;  
+  &lt;title&gt;cuke-tut&lt;/title&gt;
+&lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;h1&gt;Welcome to Meteor!&lt;/h1&gt;
+    {{&gt; loginButtons}}
+    {{&gt; hello}}
+  &lt;/body&gt;
+
+&lt;template name="hello"&gt;  
+  &lt;div&gt;
+    {{#if currentUser}}
+      &lt;form id="createWidgetForm"&gt;
+        &lt;input type="text" name="name" id="name" /&gt;
+        &lt;button type="submit" name="submit" id="createWidget"&gt;Create Widget&lt;/button&gt;
+      &lt;/form&gt;
+    {{/if}}
+    {{#each widgets}}
+      &lt;p class="widget-name"&gt;
+        {{name}}
+      &lt;/p&gt;
+    {{/each}}
+  &lt;/div&gt;
+&lt;/template&gt;
+
+
+&lt;!-- cuke-tut.html --&gt;  
+</code></pre>
+
+<p>And, looking at the Cucumber logs, voila!  All green.</p>
+
+<p><img src="https://draftin.com:443/images/29692?token=71FjihGFRyiLHRQk6aFzsZKJEDQRFjZGBAJtDK64WLMFRLWfS7nl-R-Y3j8JMP6TECslHIv5QF1AJrO8cQzVfFA" alt="all green" title=""> </p>
+
+<h1 id="summary">Summary</h1>
+
+<p>Those widgets didn't make themselves.  They needed cold, hard code to get from your click to the database and then the screen.  But we didn't sling out Meteor code and call it a day.  Instead, we first created plain english descriptions of the behavior we wanted, and then defined that behavior with JavaScript tests.  Those tests failed, so we added application code until they passed.</p>
+
+<p>Now, when we add more features, we will see if our new code breaks any of our old code.</p>
+
+<p>Velocity and meteor-cucumber are under development, and things seem to improve steadily.  Cheers, this is terrific for Meteor.</p>
+
+<p><a href="https://github.com/mhurwi/cucumber-meteor-tutorial">See this tutorial code on github</a></p>
+
+            <footer id="post_footer_willsong">
+                <section id="share_post_willsong">
+                    <h4>Share this post</h4>
+                    <a class="fa fa-twitter" href="https://twitter.com/share?text=A%20Basic%20Cucumber%20Meteor%20Tutorial&amp;url=http://localhost:2368/a-basic-cucumber-meteor-tutorial/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"></a>
+                    <a class="fa fa-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/a-basic-cucumber-meteor-tutorial/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"></a>
+                    <a class="fa fa-google-plus" href="https://plus.google.com/share?url=http://localhost:2368/a-basic-cucumber-meteor-tutorial/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;"></a>
+                </section>
+
+                <section id="author_willsong">
+                    <img src="http://www.gravatar.com/avatar/9d7ef290cb87ca79dd8ea7879c465dfb?s=250&amp;d=mm&amp;r=x" alt="Mark Hurwitz">
+                    <h4><a href="../author/mark/">Mark Hurwitz</a></h4>
+                    
+                    <p></p>
+                </section>
+
+                <section id="comments_willsong">
+                    
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'mhurwi-blog';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+                </section>
+            </footer>
+        </article>
+
+
+    </div>
+
+</main>
+
+
+    
+<footer id="foot_willsong">
+	
+	<section id="foot_content">
+		<ul id="sociallinks_willsong">
+			<li><a href="../rss/index.rss" class="fa fa-rss"></a></li>
+			<li><a href="index.html#" class="fa fa-twitter"></a></li>
+			<li><a href="index.html#" class="fa fa-facebook"></a></li>
+			<li><a href="index.html#" class="fa fa-github"></a></li>
+		</ul>
+	</section>
+	
+	<section id="copyright_willsong">
+		© 2015 Willsong. Theme crafted by <a href="http://marcosn.com/">marcosn.com</a>. Proudly powered by <a href="http://ghost.org/">Ghost</a>.
+	</section>
+</footer>
+    <script src="../public/jquery.js?v=d90acbffcb"></script>
+
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="../assets/js/prettify.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="../assets/js/main.js?v=d90acbffcb"></script>
+
+</body>

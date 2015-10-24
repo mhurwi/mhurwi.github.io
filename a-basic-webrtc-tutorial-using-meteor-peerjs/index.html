@@ -1,0 +1,609 @@
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>WebRTC using Meteor &amp; PeerJS: A Basic Tutorial</title>
+    <meta name="description" content="">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="http://localhost:2368/assets/favicon.png?v=d90acbffcb">
+
+    <!--[if lt IE 9]>
+    <script src="http://s3.amazonaws.com/nwapi/nwmatcher/nwmatcher-1.2.5-min.js"></script>
+    <script type="text/javascript" src="/assets/js/html5shiv.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="/assets/js/css3-mediaqueries.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="/assets/js/selectivizr-min.js?v=d90acbffcb"></script>
+    <![endif]-->
+
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700%7CRoboto+Condensed%7CPoly:400,400italic" rel="stylesheet" type="text/css">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../assets/css/normalize.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/ghostship.min.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/prettify/sunburst.css?v=d90acbffcb">
+    <link rel="stylesheet" type="text/css" href="../assets/css/style.css?v=d90acbffcb">
+
+    <link rel="canonical" href="index.html">
+    
+    <meta property="og:site_name" content="Mhurwi">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="WebRTC using Meteor &amp; PeerJS: A Basic Tutorial">
+    <meta property="og:description" content="WebRTC means 'Web Realtime Communications' and it comes built into certain browsers like Chrome and Firefox.  The WebRTC API  covers all the steps to stream live video, audio &amp;amp; data, but it becomes complicated when you fulfill all the steps...">
+    <meta property="og:url" content="http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/">
+    <meta property="article:published_time" content="2015-08-03T16:09:00.000Z">
+    <meta property="article:modified_time" content="2015-10-24T14:38:24.859Z">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="WebRTC using Meteor &amp; PeerJS: A Basic Tutorial">
+    <meta name="twitter:description" content="WebRTC means 'Web Realtime Communications' and it comes built into certain browsers like Chrome and Firefox.  The WebRTC API  covers all the steps to stream live video, audio &amp;amp; data, but it becomes complicated when you fulfill all the steps...">
+    <meta name="twitter:url" content="http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/">
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Mhurwi",
+    "author": {
+        "@type": "Person",
+        "name": "Mark Hurwitz",
+        "image": "//www.gravatar.com/avatar/9d7ef290cb87ca79dd8ea7879c465dfb?s=250&d=mm&r=x",
+        "url": "http://localhost:2368/author/mark",
+        "sameAs": null,
+        "description": null
+    },
+    "headline": "WebRTC using Meteor &amp; PeerJS: A Basic Tutorial",
+    "url": "http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/",
+    "datePublished": "2015-08-03T16:09:00.000Z",
+    "dateModified": "2015-10-24T14:38:24.859Z",
+    "description": "WebRTC means &#x27;Web Realtime Communications&#x27; and it comes built into certain browsers like Chrome and Firefox.  The WebRTC API  covers all the steps to stream live video, audio &amp;amp; data, but it becomes complicated when you fulfill all the steps..."
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.6">
+    <link rel="alternate" type="application/rss+xml" title="Mhurwi" href="../rss/index.html">
+    <script type="text/javascript">
+  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","group","track","ready","alias","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t){var e=document.createElement("script");e.type="text/javascript";e.async=!0;e.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};analytics.SNIPPET_VERSION="3.0.1";
+  analytics.load("lkntcnlzpd");
+  analytics.page()
+  }}();
+</script>
+</head>
+<body class="post-template">
+
+    <div id="blog_cover_willsong" class="bkg-cover"></div>
+
+    
+
+<header id="head_page_willsong">
+
+    <div id="head_content_willsong" class="boxed-cargo">
+
+        <h1 id="blog_title"><a href="../">Mhurwi</a></h1>
+
+        
+<nav id="menu_willsong">
+	<ul>
+		<li><a href="../about">About</a></li>
+		<li><a href="../projects">Projects</a></li>
+		<li><a href="../contact">Contact</a></li>
+	</ul>
+</nav>
+    </div>
+
+</header>
+<main id="content_willsong" role="main">
+
+    <div id="content_column_willsong" class="boxed-cargo">
+
+
+        <article class="post col-off2lg8-off2md8-off1sm10">
+
+            <header class="reading_post_header">
+                <h2 class="post_title">WebRTC using Meteor &amp; PeerJS: A Basic Tutorial</h2>
+                <div class="post_meta">
+                    <span class="fa fa-clock-o"></span> <time datetime="2015-08-03">03 Aug 2015</time>
+                </div>
+            </header>
+
+            <p>WebRTC means 'Web Realtime Communications' and it comes built into certain browsers like Chrome and Firefox.  The <a href="http://www.webrtc.org/native-code/native-apis">WebRTC API</a>  covers all the steps to stream live video, audio &amp; data, but it becomes complicated when you fulfill all the steps on the way to calling your friends.  <a href="http://peerjs.com/">PeerJS</a> abstracts away much of the WebRTC API and leaves us with a concise set of methods and callbacks to connect our calls.</p>
+
+<p>Follow this tutorial and build a Meteor app with 2-person video and audio chat.  First, we setup PeerJS and see how it works.  Later, we add in user management so that, when our friend is online, we can click his email and have a video chat.</p>
+
+<p>If you have never worked with Meteor.js, you should give it a shot.   <a href="https://www.meteor.com/install">Learn to install Meteor here</a></p>
+
+<p>Note: We're using Chrome.  You could choose Firefox or maybe Opera.  But I've not tested IE on Windows and Safari does <em>not</em> support webrtc (at this time).</p>
+
+<p><a href="https://github.com/mhurwi/webrtc-meteor-peerjs">See the code here</a></p>
+
+<p><a href="http://webrtc-peerjs.meteor.com">Try a live demo here</a></p>
+
+<p>Let's get started.</p>
+
+<h2 id="createanewmeteorapp">Create  a New Meteor App</h2>
+
+<p>Generate a new meteor app using meteor's command line tool.</p>
+
+<pre><code>$ meteor create webrtc-peerjs
+</code></pre>
+
+<p>This generates a boilerplate starter app that we will <em>mostly</em> delete.  We will hire a top-notch designer, so you can ignore (or remove) the CSS for now.  Your JS and HTML files should look like this: </p>
+
+<pre><code class="language-javascript">if (Meteor.isClient) {  
+}
+
+if (Meteor.isServer) {  
+}
+
+// webrtc-peerjs.js
+</code></pre>
+
+<pre><code class="language-html">&lt;head&gt;  
+  &lt;title&gt;webrtc-peerjs&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;  
+  &lt;h1&gt;Welcome to Meteor!&lt;/h1&gt;
+
+  {{&gt; hello}}
+&lt;/body&gt;
+
+&lt;template name="hello"&gt;  
+&lt;/template&gt;
+
+&lt;!-- webrtc-peerjs.html--&gt;  
+</code></pre>
+
+<p>We will fit all our code into these 2 files, after we paste in one additional file: PeerJS</p>
+
+<h2 id="addpeerjs">Add Peerjs</h2>
+
+<p>We are going to find the latest PeerJS and paste it into our project.  No packages right now.</p>
+
+<p>Copy the peer.js code from here: <a href="https://raw.githubusercontent.com/peers/peerjs/master/dist/peer.js">https://raw.githubusercontent.com/peers/peerjs/master/dist/peer.js</a></p>
+
+<p>We only need to load this in the client, so create a 'client' directory, a new 'peer.js' file, and paste the code.</p>
+
+<pre><code class="language-javascript">/*! peerjs build:0.3.13, development. Copyright(c) 2013 Michelle Bu &lt;michelle@michellebu.com&gt; */
+
+...
+
+// client/peer.js
+</code></pre>
+
+<h2 id="getapeerjsapikey">Get a PeerJS API key</h2>
+
+<p>PeerJS allows us access to their cloud servers, so our users can get special 'peer ids' that work like phone numbers specific to our app.</p>
+
+<p>Let's get our Peer JS API keys now.</p>
+
+<p>Go to <a href="http://peerjs.com/peerserver">http://peerjs.com/peerserver</a>.  Click the 'Developer - Free' button to get an API key.</p>
+
+<p><img src="https://draftin.com:443/images/31149?token=s4Sd2o2f-JXQLnJC6CKql1xGA6mZd_KHiWIE1JXTC1cZ3oFtkT4it7dANkIbvBHUYYThV3M8wMhlM_L10huUUx8" alt="PeerJS API key button" title=""> </p>
+
+<p>And you will end up seeing your key:</p>
+
+<p><img src="https://draftin.com:443/images/31150?token=f-Bi8yYYKv-2X9IpCzks3Zcsv58_MTHw6y6nqYZiykzqV0mpPVHkQLo3SGY7mTBDzNE-SalDkvVsgbjfflZh-uk" alt="Seeing your PeerJS key" title=""> </p>
+
+<p>You will use this key later, when you create a new Peer object, like this:</p>
+
+<pre><code class="language-javascript">var peer = new Peer({key: 'blahblah' ...});  
+</code></pre>
+
+<p>But before we hack our JavaScript, let's stub out a minimal HTML template.</p>
+
+<h2 id="bareboneshtmltemplate">Barebones HTML Template</h2>
+
+<p>Our template needs only the basics.  A div each for 'myVideo' and 'theirVideo'.  An input to paste 'their' peer ID.  And 2 buttons: 'makeCall' &amp; 'endCall'.</p>
+
+<p>Here's the entirety of our html file: </p>
+
+<pre><code class="language-html">&lt;head&gt;  
+  &lt;title&gt;webrtc-peerjs&lt;/title&gt;
+&lt;/head&gt;
+
+
+&lt;body&gt;  
+  &lt;h1&gt;Welcome to Meteor!&lt;/h1&gt;
+
+  {{&gt; hello}}
+&lt;/body&gt;
+
+&lt;template name="hello"&gt;  
+    &lt;h2&gt;Video Chat&lt;/h2&gt;
+    &lt;div id="video-container"&gt;
+      &lt;!-- note the 'autoplay' --&gt;
+      Their video: &lt;video id="theirVideo" class="theirVideo" autoplay&gt;&lt;/video&gt;
+      &lt;video id="myVideo" muted="true" class="myVideo" autoplay&gt;&lt;/video&gt;: Your video
+    &lt;/div&gt;
+
+    &lt;h2&gt;Controls&lt;/h2&gt;
+    &lt;div&gt;
+      &lt;p&gt;Your id: &lt;span id="myPeerId"&gt;...&lt;/span&gt;&lt;/p&gt;
+      &lt;p&gt;Make a call&lt;/p&gt;&lt;br&gt;
+      &lt;input type="text" placeholder="Call user id..." id="remotePeerId"&gt;
+      &lt;p&gt;&lt;a href="#" id="makeCall"&gt;Call&lt;/a&gt;&lt;/p&gt;
+      &lt;p&gt;&lt;a href="#" id="endCall"&gt;End call&lt;/a&gt;&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/template&gt;  
+</code></pre>
+
+<p>We will access our local webcam and see our own video in '#myVideo'.</p>
+
+<p>We will be able to paste our friend's peer id into the input, click 'makeCall' and see our friend's video '#theirVideo'. Clicking 'endCall' will hangup.</p>
+
+<p>Now we can wire up the JavaScript.</p>
+
+<h2 id="thejavascript">The JavaScript</h2>
+
+<p>We will have our 'hello' template do a couple things as soon as it loads.  First, it should initiate our PeerJS connection.  We can do this in the template's 'onCreated' callback:</p>
+
+<pre><code class="language-javascript">if (Meteor.isClient) {  
+  Template.hello.onCreated(function () {
+      // Create a Peer instance
+      window.peer = new Peer({
+      key: 'applebanana',  // get a free key at http://peerjs.com/peerserver
+      debug: 3,
+      config: {'iceServers': [
+        { url: 'stun:stun.l.google.com:19302' },
+        { url: 'stun:stun1.l.google.com:19302' },
+      ]}
+    });
+
+    // Handle event: upon opening our connection to the PeerJS server
+    peer.on('open', function () {
+      $('#myPeerId').text(peer.id);
+    });
+
+    // Handle event: remote peer receives a call
+    peer.on('call', function (incomingCall) {
+      window.currentCall = incomingCall;
+      incomingCall.answer(window.localStream);
+      incomingCall.on('stream', function (remoteStream) {
+        window.remoteStream = remoteStream;
+        var video = document.getElementById("theirVideo")
+        video.src = URL.createObjectURL(remoteStream);
+      });
+    });
+  });
+}
+// webrtc-peerjs.js
+</code></pre>
+
+<p>This code does 3 important things.  First, it connects to the PeerJS cloud server, sending along an options object that includes our API key, the debug level (3 means 'tell me everything') and the STUN &amp; TURN servers that we want to use.  </p>
+
+<blockquote>
+  <p>Note: STUN &amp; TURN, as well as ICE, are crucial topics.  But, we don't need to understand them for this 'hello world' style tutorial. <a href="http://www.html5rocks.com/en/tutorials/webrtc/basics/">Read more when you're ready.</a></p>
+</blockquote>
+
+<p>We added two callbacks, for two events: when our PeerJS connection opens, and when a client receives a call.  First, when our client connects with the PeerJS cloud servers and receives our local peer id, is the 'open' event.  That local peer id acts as a phone number.  We can give it to a friend and he can call us.  Similarly, when our friend loads the app on <em>his</em> browser, his browser also hears the 'open' event and gets his <em>own</em> peer id.  We can use that peer id to call <em>him</em>.</p>
+
+<p>Second, when our local peer receives an incoming call, is the 'call' event. When we call our friend, this callback fires in his browser, creates a 'call' object and sets it as <code>window.currentCall</code>.  </p>
+
+<p>Note, that last callback has its <em>own</em> callback, fired when our friend receives our video &amp; audio stream. In WebRTC calls, we add a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaStream">MediaStream</a>, like a webcam feed, into the connection. If we wanted, we could only add audio, or share our screen (advanced).</p>
+
+<p>When we call our friend, we send our video stream. Our friend will take our stream, set it to the var 'window.remoteStream', and show it in his browser, with the lines: </p>
+
+<pre><code>var video = document.getElementById("theirVideo")  
+video.src = URL.createObjectURL(remoteStream);  
+</code></pre>
+
+<p>Speaking of our MediaStream, we need to access it before we make calls. Continuing in the same 'onCreated' callback: </p>
+
+<pre><code class="language-javascript">if (Meteor.isClient) {  
+  Template.hello.onCreated(function () {
+    ...
+
+        navigator.getUserMedia = ( navigator.getUserMedia ||
+                            navigator.webkitGetUserMedia ||
+                            navigator.mozGetUserMedia ||
+                            navigator.msGetUserMedia );
+
+    // get audio/video
+    navigator.getUserMedia({audio:true, video: true}, function (stream) {
+        //display video
+        var video = document.getElementById("myVideo");
+      video.src = URL.createObjectURL(stream);
+        window.localStream = stream;
+      },
+      function (error) { console.log(error); }
+    );
+
+  });
+}
+// webrtc-peerjs.js
+</code></pre>
+
+<p>The type of 'getUserMedia' function available depends on the browser we use, and each browser requires its own prefix. Browser makers hope to eliminate that inconsistency soon.</p>
+
+<p>With this code, the template loads, connects to the PeerJS cloud server, gets a peer id for our local user, and grabs streaming audio &amp; video from our computer. </p>
+
+<ul>
+<li>Note: with 'audio: true', you will get feedback when you test locally with yourself.  Setting 'audio: false' may be more pleasant.</li>
+</ul>
+
+<p>We can add 2 events and start making calls.  In the Template.hello.events:</p>
+
+<pre><code class="language-javascript">if (Meteor.isClient) {  
+  Template.hello.events({
+    "click #makeCall": function () {
+      var outgoingCall = peer.call($('#remotePeerId').val(), window.localStream);
+      window.currentCall = outgoingCall;
+      outgoingCall.on('stream', function (remoteStream) {
+        window.remoteStream = remoteStream;
+        var video = document.getElementById("theirVideo")
+        video.src = URL.createObjectURL(remoteStream);
+      });
+    },
+
+    "click #endCall": function () {
+      window.currentCall.close();
+    }
+  });
+
+  ...
+
+}
+
+// webrtc-peerjs.js
+</code></pre>
+
+<p>The 'makeCall' event creates a new call, passing in our friend's peer id that we typed into our HTML input and also our localStream (mic &amp; video).  We set that call to 'window.currentCall'.</p>
+
+<p>We added a callback, similar to the other 'call' callback in 'Template.hello.onCreated'. When our friend answers our call and sends back his own media stream, this callback fires in our brower and adds our friend's video track to the '#theirVideo' HTML element.  </p>
+
+<p>Thus, we called our friend, he answered, the call, grabbed our video and sent back his own video. Voila-- two-way video chat.</p>
+
+<p>The other 'click' event, 'endCall', closes the 'window.currentCall'.  This is like 'hangup'.  This closes the call instantly on your end.  Interestingly, if you watch carefully, it takes 5+ seconds for your friends client to close on his end. </p>
+
+<h2 id="tryitout">Try it out</h2>
+
+<p>Load up 2 tabs-- one tab must be private (Mac: Cmd+Shift+N, Windows: Ctrl+Shift+N).  Copy the peer ID from one tab into the other, click 'call' and see yourself.  One video is local, the other is remote. </p>
+
+<p><img src="https://draftin.com:443/images/31152?token=iBTW_9DFae7QwIJenoJB2HiQmCAYH3SBzurw7NYrdT1x9VsDCIpUHvqp0LMyM00qzS0S7uhg7D_b-wuBggR8_y0" alt="Showing local and remote video" title=""> </p>
+
+<p><a href="https://github.com/mhurwi/webrtc-meteor-peerjs/tree/basic">You can view the code thusfar on the 'basic' branch</a></p>
+
+<h1 id="callingusersbyemail">Calling users by email</h1>
+
+<p>Let's take this app to the <em>next level</em>.  We want to see a list of online users, click one and enter a video chat.</p>
+
+<h2 id="addusers">Add users</h2>
+
+<p>First, we add basic Meteor accounts stuff. </p>
+
+<pre><code>$ meteor add accounts-ui
+
+...
+
+$ meteor add accounts-password
+</code></pre>
+
+<p>And, in the main HTML, add the 'loginButtons' template so we can login and register new users.</p>
+
+<pre><code class="language-html">&lt;body&gt;  
+  &lt;h1&gt;Welcome to Meteor!&lt;/h1&gt;
+  {{&gt; loginButtons}}
+  {{&gt; hello}}
+&lt;/body&gt;
+
+&lt;!-- webrtc-peerjs.html --&gt;  
+</code></pre>
+
+<h2 id="addpresence">Add Presence</h2>
+
+<p>Next, we add a package to that gives us Presences, a special collection that monitors online users.  </p>
+
+<p><a href="https://github.com/dburles/meteor-presence">Read about Meteor Presence here</a></p>
+
+<pre><code>$ meteor add tmeasday:presence
+</code></pre>
+
+<h2 id="savethecurrentusersspeerid">Save the current users's Peer ID</h2>
+
+<p>Now, we have user accounts and will be able to see which users are online.  But, in addition to a user's presence, we must also know his peer id, so that we can call him via PeerJS.  We will refactor the PeerJS 'on open' callback in 'Template.hello.onCreated':  </p>
+
+<pre><code class="language-javascript">// within the Template.hello.onCreated callback
+
+peer.on('open', function () {  
+  $('#myPeerId').text(peer.id);
+  // update the current user's profile
+  Meteor.users.update({_id: Meteor.userId()}, {
+    $set: {
+      profile: { peerId: peer.id}
+    }
+  });
+});
+
+// webrtc-peerjs.js
+</code></pre>
+
+<p>Upon opening the PeerJS connection and receiving a peer id, we save the peer id to the user's profile.</p>
+
+<h2 id="hideuntilcurrentuserloggedin">Hide until current user logged in</h2>
+
+<p>Let's hide all the video stuff until the user is logged in. Otherwise, the template will load without any user, and then we'd have add an 'onLogin' callback to update the user's peer id after logging in.  And anyways, there's no use seeing the call controls before you're logged in.  Checking for the current user improves the UX:</p>
+
+<pre><code class="language-html">&lt;body&gt;  
+  &lt;h1&gt;Welcome to Meteor!&lt;/h1&gt;
+  {{&gt; loginButtons}}
+  {{#if currentUser}}
+    {{&gt; hello}}
+  {{/if}}
+&lt;/body&gt;  
+</code></pre>
+
+<h2 id="publishusers">Publish users</h2>
+
+<p>Let's remove autopublish and properly publish &amp; subscribe users and presences.</p>
+
+<p>First, remove autopublish</p>
+
+<pre><code>$ meteor remove autopublish
+</code></pre>
+
+<p>Now, publish online users and presences. Note that this will be our only server-side code.</p>
+
+<pre><code class="language-javascript">if (Meteor.isServer) {  
+  Meteor.publish('presences', function() {
+    return Presences.find({}, { userId: true });
+  });
+  Meteor.publish("users", function () {
+    return Meteor.users.find({}, {fields: {"profile.peerId": true, "emails.address": true} });
+  });
+}
+
+// webrtc-peerjs.js
+</code></pre>
+
+<p>Back on the client, in 'Template.hello.onCreated' subscribe to 'users' and 'presences':</p>
+
+<pre><code class="language-javascript">Template.hello.onCreated(function () {  
+    Meteor.subscribe("users");
+    Meteor.subscribe("presences");
+    // ...
+}
+
+// webrtc-peerjs.js
+</code></pre>
+
+<p>Add a helper to find online users:</p>
+
+<pre><code class="language-javascript">if (Meteor.isClient) {  
+  Template.hello.helpers({
+    users: function () {
+      var userIds = Presences.find().map(function(presence) {return presence.userId;});
+      // exclude the currentUser
+      return Meteor.users.find({_id: {$in: userIds, $ne: Meteor.userId()}});
+    }
+  });
+}
+// webrtc-peerjs.js
+</code></pre>
+
+<p>First, find the Presences and get an array of just their corresponding userIds.  Then find users using that array.</p>
+
+<p>Show users in the HTML:</p>
+
+<pre><code class="language-html">&lt;h2&gt;Controls&lt;/h2&gt;  
+&lt;div&gt;  
+  &lt;p&gt;Your id: &lt;span id="myPeerId"&gt;...&lt;/span&gt;&lt;/p&gt;
+  &lt;p&gt;Make a call&lt;/p&gt;&lt;br&gt;
+  {{#each users}}
+    &lt;a href="#" id="makeCall"&gt;Call {{#each emails}}{{address}}{{/each}}&lt;/a&gt;
+  {{/each}}
+&lt;/div&gt;
+
+&lt;!-- webrtc-peerjs.html --&gt;  
+</code></pre>
+
+<p>Note: we can make better hacks to get the user's email, but this works for now.</p>
+
+<p>At this point, we can see who's online. Now we can refactor the 'makeCall' event to use the user's peer id.</p>
+
+<pre><code class="language-javascript">// Template.hello.events:
+    "click #makeCall": function () {
+      var user = this;
+      var outgoingCall = peer.call(user.profile.peerId, window.localStream);
+      window.currentCall = outgoingCall;
+      outgoingCall.on('stream', function (remoteStream) {
+        window.remoteStream = remoteStream;
+        var video = document.getElementById("theirVideo")
+        video.src = URL.createObjectURL(remoteStream);
+      });
+    },
+
+// webrtc-peerjs.js
+</code></pre>
+
+<p>This app is all set, so try it out.  Login as 2 different users in 2 different tabs.  Click to call an online user.</p>
+
+<p><img src="https://draftin.com:443/images/31209?token=fOP9C_9whIOtESMcDHMEoHmi-7rxPJ8-hN972gKNJ2PwDqxL8SWBB-PlON32-jO8jZ6hmvIQ_GGezHFZ7b4Pqc4" alt="Click to call" title=""> </p>
+
+<p><a href="https://github.com/mhurwi/webrtc-meteor-peerjs">See the code at github</a></p>
+
+<p><a href="http://webrtc-peerjs.meteor.com">Try the demo here</a></p>
+
+<h2 id="summary">Summary</h2>
+
+<p>This was a 'hello world' style tutorial with a big payoff: encrypted, live streaming audio &amp; video communications between two browsers. </p>
+
+<p>You might want to do more:</p>
+
+<ul>
+<li>muting the audio</li>
+<li>toggling video on &amp; off</li>
+<li>screensharing</li>
+<li>creating 'full mesh' conference calls with 3+ people</li>
+<li>streaming data for games</li>
+<li>deploying across iOS and Android</li>
+</ul>
+
+<p>There's a lot to learn and the WebRTC API seems to be rapidly evolving.  <a href="http://hancke.name/webrtc/screenshare/#/4">Screensharing</a> used to be more straightforward, but Chrome has made it so you must use a browser extension.  You can expect other WebRTC internals to change as well. </p>
+
+<p>But WebRTC is ready for production and it is awesome.  Give it a try! </p>
+
+            <footer id="post_footer_willsong">
+                <section id="share_post_willsong">
+                    <h4>Share this post</h4>
+                    <a class="fa fa-twitter" href="https://twitter.com/share?text=WebRTC%20using%20Meteor%20%26%20PeerJS%3A%20A%20Basic%20Tutorial&amp;url=http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"></a>
+                    <a class="fa fa-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/" onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"></a>
+                    <a class="fa fa-google-plus" href="https://plus.google.com/share?url=http://localhost:2368/a-basic-webrtc-tutorial-using-meteor-peerjs/" onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;"></a>
+                </section>
+
+                <section id="author_willsong">
+                    <img src="http://www.gravatar.com/avatar/9d7ef290cb87ca79dd8ea7879c465dfb?s=250&amp;d=mm&amp;r=x" alt="Mark Hurwitz">
+                    <h4><a href="../author/mark/">Mark Hurwitz</a></h4>
+                    
+                    <p></p>
+                </section>
+
+                <section id="comments_willsong">
+                    
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'mhurwi-blog';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+                </section>
+            </footer>
+        </article>
+
+
+    </div>
+
+</main>
+
+
+    
+<footer id="foot_willsong">
+	
+	<section id="foot_content">
+		<ul id="sociallinks_willsong">
+			<li><a href="../rss/index.rss" class="fa fa-rss"></a></li>
+			<li><a href="index.html#" class="fa fa-twitter"></a></li>
+			<li><a href="index.html#" class="fa fa-facebook"></a></li>
+			<li><a href="index.html#" class="fa fa-github"></a></li>
+		</ul>
+	</section>
+	
+	<section id="copyright_willsong">
+		© 2015 Willsong. Theme crafted by <a href="http://marcosn.com/">marcosn.com</a>. Proudly powered by <a href="http://ghost.org/">Ghost</a>.
+	</section>
+</footer>
+    <script src="../public/jquery.js?v=d90acbffcb"></script>
+
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="../assets/js/prettify.js?v=d90acbffcb"></script>
+    <script type="text/javascript" src="../assets/js/main.js?v=d90acbffcb"></script>
+
+</body>
